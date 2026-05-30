@@ -198,7 +198,7 @@ class DizznemBot(commands.Bot):
             ("dizznem", "dihhnem*"),
             ("cook", "We need to cook."),
             ("call", "Better Call Saul!"),
-            # ("gay", "Dizznem Bot is an LGBTQ+ ally!"),  # Vaulted pride month command
+            ("gay", "Dizznem Bot is an LGBTQ+ ally!"),  # UNVaulted pride month command
             ("limit", "WE SAIYANS HAVE NO LIMITS!!!"),
             (
                 "super speed clicker",
