@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 AI_COOLDOWN: float = 5.0
 MAX_PROMPT_LENGTH: int = 1000
 
+
 class DizznemBot(commands.Bot):
     """Dizznem Bot class."""
 
@@ -199,6 +200,10 @@ class DizznemBot(commands.Bot):
             ("cook", "We need to cook."),
             ("call", "Better Call Saul!"),
             ("gay", "Dizznem Bot is an LGBTQ+ ally!"),  # UNVaulted pride month command
+            (
+                "pride",
+                "Happy PRIDE month! \n-From Pride IF Subaru!\n https://tenor.com/view/subaru-edit-pride-subaru-rezero-pride-rezero-edit-subaru-natsuki-gif-11978560993207825692",
+            ),
             ("limit", "WE SAIYANS HAVE NO LIMITS!!!"),
             (
                 "super speed clicker",

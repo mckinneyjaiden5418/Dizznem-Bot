@@ -5,6 +5,7 @@
 - New admin commands.
     - $addmoney (adds money to a user).
     - $resetcooldown (resets cooldowns, e.g. $daily and $weekly).
+- New and old response commands for pride month.
 
 ### Changed
 - Balance embed to look better.
