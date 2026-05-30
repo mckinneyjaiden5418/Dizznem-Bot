@@ -17,6 +17,7 @@
 
 ### Fixed
 - $setmoney formatting (admin command).
+- Prestige price not scaling.
 
 ## [2.1.1] - 2026-5-12
 ### Added

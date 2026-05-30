@@ -83,6 +83,9 @@ class StoreView(View):
         self.bot: Bot = bot
         self.message: Message | None = None
 
+        prestige_cost: int = 100_000_000 * (prestige + 1)
+        self.prestige_button.label = f"⭐ PRESTIGE (${format_number(prestige_cost)})"
+
     async def interaction_check(self, interaction: Interaction) -> bool:
         """Ensure only the command invoker can interact.
 
@@ -119,6 +122,7 @@ class StoreView(View):
             Embed: The store embed.
         """
         ping_count: int = (prestige + 1) * 5
+        prestige_cost: int = 100_000_000 * (prestige + 1)
         embed = Embed(title="🛒 Store", color=Color.og_blurple())
         embed.add_field(
             name="💰 Your Balance",
@@ -157,7 +161,7 @@ class StoreView(View):
         )
         embed.add_field(
             name="⭐ PRESTIGE",
-            value="**$100,000,000** — ⚠️ Resets all your money and stocks!",
+            value=f"**${format_number(prestige_cost)}** — ⚠️ Resets all your money and stocks!",
             inline=False,
         )
         return embed
@@ -220,8 +224,8 @@ class StoreView(View):
                 description=f"Pinging Cuckdiff {ping_count} times!",
             ),
         )
-        for _ in range(ping_count): # pyright: ignore[reportAssignmentType]
-            await interaction.channel.send( # pyright: ignore[reportOptionalMemberAccess] # type: ignore  # noqa: PGH003
+        for _ in range(ping_count):  # pyright: ignore[reportAssignmentType]
+            await interaction.channel.send(  # pyright: ignore[reportOptionalMemberAccess] # type: ignore  # noqa: PGH003
                 f"<@{self.CUCKDIFF_ID}>",
             )
 
@@ -331,7 +335,7 @@ class StoreView(View):
 
         async def on_submit(inter: Interaction, text: str) -> None:
             channel: TextChannel | None = self.bot.get_channel(
-                self.bot.inspiration_channel_id, # type: ignore  # noqa: PGH003
+                self.bot.inspiration_channel_id,  # type: ignore  # noqa: PGH003
             )
             if channel is None:
                 await inter.response.send_message(
@@ -401,8 +405,10 @@ class StoreView(View):
         await interaction.response.send_modal(modal)
 
     @button(label="⭐ PRESTIGE ($100,000,000)", style=ButtonStyle.red, row=3)
-    async def prestige( # pyright: ignore[reportRedeclaration]
-        self, interaction: Interaction, _: Button,
+    async def prestige_button(  # pyright: ignore[reportRedeclaration]
+        self,
+        interaction: Interaction,
+        _: Button,
     ) -> None:
         """Prestige — resets money and stocks.
 
@@ -410,7 +416,7 @@ class StoreView(View):
             interaction (Interaction): The interaction.
             _ (Button): Unused button reference.
         """
-        cost: float = 100_000_000
+        cost: float = 100_000_000 * (self.prestige + 1)
         if not self._check_balance(cost):
             await self._insufficient_funds(interaction)
             return
@@ -418,13 +424,14 @@ class StoreView(View):
         confirm_view = PrestigeConfirmView(
             user_id=self.user_id,
             bot=self.bot,
+            cost=cost,
         )
         await interaction.response.send_message(
             embed=Embed(
                 title="⭐ Confirm Prestige",
                 color=Color.red(),
                 description=(
-                    "⚠️ This will **reset all your money and stocks** and cost **$100,000,000**.\n\n"
+                    f"⚠️ This will **reset all your money and stocks** and cost **${format_number(cost)}**.\n\n"  # noqa: E501
                     "Are you sure?"
                 ),
             ),
@@ -436,16 +443,18 @@ class StoreView(View):
 class PrestigeConfirmView(View):
     """Confirmation view for prestiging."""
 
-    def __init__(self, user_id: int, bot: Bot) -> None:
+    def __init__(self, user_id: int, bot: Bot, cost: float) -> None:
         """Initialize the prestige confirm view.
 
         Args:
             user_id (int): Discord user ID.
             bot (Bot): DizznemBot instance.
+            cost (float): Prestige cost.
         """
         super().__init__(timeout=30)
         self.user_id: int = user_id
         self.bot: Bot = bot
+        self.cost: float = cost
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """Ensure only the command invoker can interact.
