@@ -1,10 +1,14 @@
 # Dizznem Bot Changelog
 
-## [2.1.2] - 2026-XX-XX
+## [2.2.0] - 2026-6-1
 ### Added
 - New admin commands.
     - $addmoney (adds money to a user).
     - $resetcooldown (resets cooldowns, e.g. $daily and $weekly).
+- New and old response commands for pride month.
+- $sus command.
+    - $sus @{user} to use on someone else.
+    - $sus with no @ will do yourself.
 
 ### Changed
 - Balance embed to look better.
