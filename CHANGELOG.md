@@ -1,6 +1,6 @@
 # Dizznem Bot Changelog
 
-## [2.1.2] - 2026-XX-XX
+## [2.2.0] - 2026-6-1
 ### Added
 - New admin commands.
     - $addmoney (adds money to a user).
