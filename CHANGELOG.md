@@ -9,6 +9,9 @@
 - $sus command.
     - $sus @{user} to use on someone else.
     - $sus with no @ will do yourself.
+- $summarize command.
+    - Summarizes the last X messages in a channel using AI.
+    - Optional count argument (range 10-50, default 50, max 50).
 
 ### Changed
 - Balance embed to look better.
