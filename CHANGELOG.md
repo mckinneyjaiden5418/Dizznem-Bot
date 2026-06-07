@@ -1,7 +1,9 @@
 # Dizznem Bot Changelog
 
 ## [2.2.0] - 2026-6-1
+
 ### Added
+
 - New admin commands.
     - $addmoney (adds money to a user).
     - $resetcooldown (resets cooldowns, e.g. $daily and $weekly).
@@ -14,23 +16,29 @@
     - Optional count argument (range 10-50, default 50, max 50).
 
 ### Changed
+
 - Balance embed to look better.
 - Formatting of AI cooldown / cap messages.
 - Level presentation for both $level and $profile.
 
 ### Fixed
+
 - $setmoney formatting (admin command).
 - Prestige price not scaling.
 
 ## [2.1.1] - 2026-5-12
+
 ### Added
+
 - Per-user cooldown on AI chat to prevent spam.
 - Global semaphore limiting concurrent AI API calls to 3.
     - In other words only 3 AI calls can be made at once, the rest waits in a queue.
 - Prompt length cap of 1000 characters for AI chat.
 
 ## [2.1.0] - 2026-5-8
+
 ### Added
+
 - AI caching.
     - Dizznem Bot AI now remembers the last 10 messages in a conversation for better context.
 - Notification for leveling up.
@@ -39,6 +47,7 @@
     - Sends nowhere otherwise but this probably won't happen.
 
 ### Changed
+
 - $aba / $roguelineage refactored (ABA April update -- happy April 38th).
     - New nicknames.
     - More lenient answers (i.e. "Goku Blac" instead of "Goku Black" would work since that is close enough)
@@ -46,23 +55,29 @@
         - Occasionally an unintended entry may appear as a question. If this happens, let me know and I'll filter it out.
 
 ### Fixed
+
 - $daily and $weekly money amount not being bolded.
 - $setmoney (admin command) text being misleading / not accurate.
 - YouTube feature should work WAYYYYYY better now (i.e. not slow... I hope).
     - (It speeds up randomly because it has "Made in Heaven" might patch this in the future idk).
 
 ## [2.0.1] - 2026-4-7
+
 ### Changed
+
 - Lowered gambling cd to 3 seconds.
 - Cooldowns are now formatted by days -> hours -> minutes -> seconds.
 
 ### Fixed
+
 - Gambling all your money sometimes not working.
 - YouTube command being slow/buggy (probably not but I might have! it's hard to test because the raspberry pi seems like the main reason it was doing this).
 
 
 ## [2.0.0] - 2026-3-29
+
 ### Added
+
 - Whole new/refactored backend!
 - Dizznem Bot now has a YouTube feature!
     - $play "video title" to play a video
@@ -79,6 +94,7 @@
 - Some other things that I just don't feel like typing out go figure it out yourself.
 
 ### Changed
+
 - All output replaced with embeds with small exceptions such as AI responses.
 - New XP formula.
 - The way some cooldowns work.
@@ -97,9 +113,11 @@
 - $store has a more GUI like approach.
 
 ### Fixed
+
 - Possible sources of data loss.
 
 ### Removed
+
 - All data reset except for...
     - Level related data.
     - $inspiration database.
@@ -110,6 +128,7 @@
     - Not needed anymore.
 
 ### Notes
+
 - Your level will start at 1. If you had a lot of messages on Dizznem Bot 1.0.0, you may level up rapidly for a bit until the bot syncs you to the correct level.
 - User data that was not reset dates back to 11/21/25.
 - YouTube feature will likely have quite a few bugs due to limited testing. Report any bugs to me and I'll work on fixing them.
@@ -117,5 +136,7 @@
 - YouTube feature probably has a bug where it'll stop playing something randomly, but I wanted to get this out today so I'll fix this later haha.
 
 ## [1.0.0] - 2025-3-30
+
 ### Added
+
 - Original Dizznem Bot release!
