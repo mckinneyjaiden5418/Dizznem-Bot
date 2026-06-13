@@ -11,7 +11,8 @@
                 "njpwerner.autodocstring",
                 "ms-python.black-formatter",
                 "qwtel.sqlite-viewer",
-                "github.vscode-github-actions"
+                "github.vscode-github-actions",
+                "tonybaloney.vscode-pets"
             ]
         }
     },
