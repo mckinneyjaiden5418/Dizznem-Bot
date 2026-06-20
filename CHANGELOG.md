@@ -1,5 +1,10 @@
 # Dizznem Bot Changelog
 
+## [2.2.1] - 2026-7-1
+
+### Removed
+- Pride month exclusive response commands.
+
 ## [2.2.0] - 2026-6-1
 
 ### Added

@@ -199,10 +199,10 @@ class DizznemBot(commands.Bot):
             ("dizznem", "dihhnem*"),
             ("cook", "We need to cook."),
             ("call", "Better Call Saul!"),
-            ("gay", "Dizznem Bot is an LGBTQ+ ally!"),  # UNVaulted pride month command
+            # ("gay", "Dizznem Bot is an LGBTQ+ ally!"),  # Vaulted pride month command
             (
                 "pride",
-                "Happy PRIDE month! \n-From Pride IF Subaru!\n https://tenor.com/view/subaru-edit-pride-subaru-rezero-pride-rezero-edit-subaru-natsuki-gif-11978560993207825692",
+                "https://tenor.com/view/subaru-edit-pride-subaru-rezero-pride-rezero-edit-subaru-natsuki-gif-11978560993207825692",
             ),
             ("limit", "WE SAIYANS HAVE NO LIMITS!!!"),
             (
