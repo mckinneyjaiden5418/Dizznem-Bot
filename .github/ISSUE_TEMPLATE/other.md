@@ -7,6 +7,7 @@ assignees: mckinneyjaiden5418
 ---
 
 ## Type
+
 <!-- Check the one that applies -->
 - [ ] Question
 - [ ] Documentation
@@ -15,7 +16,9 @@ assignees: mckinneyjaiden5418
 - [ ] Other
 
 ## Description
+
 <!-- What's on your mind? -->
 
 ## Additional Context
+
 <!-- Anything else relevant? -->

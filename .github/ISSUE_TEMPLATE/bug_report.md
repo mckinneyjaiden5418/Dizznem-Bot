@@ -7,11 +7,15 @@ assignees: mckinneyjaiden5418
 ---
 
 ## Description
+
 <!-- What's going wrong? -->
 
 ## Steps to Reproduce
+
 1. 
+
 2. 
+
 3. 
 
 **Expected behavior:**
@@ -19,4 +23,5 @@ assignees: mckinneyjaiden5418
 **Actual behavior:**
 
 ## Additional Context
+
 <!-- Screenshots, logs, error messages, etc. -->
