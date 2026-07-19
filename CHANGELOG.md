@@ -5,14 +5,14 @@
 ### Added
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
+- Replying to a message with `$summarize` now summarizes just that message.
+- `$summarize` count range widened from 10-50 to 5-100.
+- `$summary` now works as an alias for `$summarize`.
 - `$retirestock` admin command to pay out and clear a stock's holders before its ticker is changed.
 
 ### Fixed
 
 - ABA/Rogue trivia now shows the correct answer even when your guess is marked correct.
-
-### Fixed
-
 - `$aba` / `$roguelineage` no longer show "Message could not be loaded" (loading embed is edited in place instead of deleted).
 
 ### Changed
