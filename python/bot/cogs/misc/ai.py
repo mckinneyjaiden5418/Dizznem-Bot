@@ -107,7 +107,7 @@ class AI(commands.Cog):
         aliases=["summary"],
     )
     @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
-    async def summarize(  # noqa: C901 - refactor later if needed
+    async def summarize(  # noqa: C901, PLR0912, PLR0915 -- refactoring would be nice.
         self,
         ctx: commands.Context,
         count: int = SUMMARY_CAP,
@@ -133,14 +133,38 @@ class AI(commands.Cog):
                 f"Fetching messages for summarize in channel {ctx.channel.id}.",
             )
             messages: list = []
-            async for msg in ctx.channel.history(limit=count * 3):
-                if msg.author.bot:
-                    continue
-                if not msg.clean_content.strip() and not msg.embeds:
-                    continue
-                messages.append(msg)
-                if len(messages) >= count:
+            before_msg: Message | None = None
+            batch_size: int = max(count * 2, 50)
+            raw_fetched: int = 0
+            history_exhausted: bool = False
+            while len(messages) < count:
+                fetched_any: bool = False
+                async for msg in ctx.channel.history(
+                    limit=batch_size,
+                    before=before_msg,
+                ):
+                    fetched_any = True
+                    raw_fetched += 1
+                    before_msg = msg
+                    if msg.author.bot:
+                        continue
+
+                    if not msg.clean_content.strip() and not msg.embeds:
+                        continue
+
+                    messages.append(msg)
+                    if len(messages) >= count:
+                        break
+
+                if not fetched_any:
+                    history_exhausted = True
                     break
+
+            logger.debug(
+                f"Summarize fetch complete: {raw_fetched} raw messages scanned, "
+                f"{len(messages)}/{count} valid messages collected "
+                f"(exhausted={history_exhausted}).",
+            )
 
         if not messages:
             embed: Embed = Embed(
@@ -180,7 +204,10 @@ class AI(commands.Cog):
             footer_parts.append(clamp_note)
         if truncated:
             footer_parts.append("Note: some older messages were trimmed due to length.")
-        footer: str = " • ".join(footer_parts)
+        if replied is None and history_exhausted and actual_count < count:
+            footer_parts.append(
+                f"Note: channel history exhausted at {actual_count} valid message(s).",
+            )
 
         title: str = (
             "📋 Message Summary"
@@ -192,8 +219,8 @@ class AI(commands.Cog):
             color=Color.blurple(),
             description=summary,
         )
-        if footer:
-            embed.set_footer(text=footer)
+        if footer_parts:
+            embed.set_footer(text=" • ".join(footer_parts))
 
         await ctx.send(embed=embed)
 
