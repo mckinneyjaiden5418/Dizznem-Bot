@@ -10,4 +10,4 @@ Fixes #
 - [ ] No breaking changes to existing commands (or noted below if so)
 - [ ] Tested in Discord manually
 - [ ] `pytest` passes with no errors
-- [ ] `CHANGELOG.md` 1
+- [ ] `CHANGELOG.md` updated (if applicable)
