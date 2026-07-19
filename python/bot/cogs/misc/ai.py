@@ -7,6 +7,7 @@ from discord import Color, Embed
 from discord.ext import commands
 from log import logger
 from utils.misc.ai import get_ai_summary
+from utils.misc.embeds import extract_message_embed_text
 
 SUMMARY_CAP: int = 50
 CHAR_BUDGET: int = 30_000
@@ -37,6 +38,9 @@ def _clamp_count(count: int) -> tuple[int, str | None]:
 def _build_message_block(messages: list) -> tuple[str, bool]:
     """Flatten a list of messages into a plain-text block within the char budget.
 
+    Embed text (titles, descriptions, fields, footers) is appended to each
+    message's line so the AI can read embedded content.
+
     Args:
         messages (list): discord.Message objects, newest-first.
 
@@ -45,11 +49,16 @@ def _build_message_block(messages: list) -> tuple[str, bool]:
         any lines were dropped due to the character budget.
     """
     chrono: list = list(reversed(messages))
-    lines: list[str] = [
-        f"{msg.author.display_name}: {msg.clean_content}"
-        for msg in chrono
-        if msg.clean_content.strip()
-    ]
+    lines: list[str] = []
+    for msg in chrono:
+        parts: list[str] = []
+        if msg.clean_content.strip():
+            parts.append(msg.clean_content.strip())
+        embed_text: str = extract_message_embed_text(msg.embeds)
+        if embed_text:
+            parts.append(f"[embed] {embed_text}")
+        if parts:
+            lines.append(f"{msg.author.display_name}: " + " ".join(parts))
 
     truncated: bool = False
     while lines and len("\n".join(lines)) > CHAR_BUDGET:
@@ -90,7 +99,9 @@ class AI(commands.Cog):
         logger.debug(f"Fetching messages for summarize in channel {ctx.channel.id}.")
         messages: list = []
         async for msg in ctx.channel.history(limit=count * 3):
-            if msg.author.bot or not msg.clean_content.strip():
+            if msg.author.bot:
+                continue
+            if not msg.clean_content.strip() and not msg.embeds:
                 continue
             messages.append(msg)
             if len(messages) >= count:

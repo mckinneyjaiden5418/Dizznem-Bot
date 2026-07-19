@@ -1,5 +1,12 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Added
+
+- `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
+- `$retirestock` admin command to pay out and clear a stock's holders before its ticker is changed.
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
