@@ -6,6 +6,10 @@
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
 
+### Changed
+
+- Error messages (invalid input, no access, insufficient funds) are now only visible to the user who ran the command (slash commands only).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed

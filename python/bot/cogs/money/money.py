@@ -83,6 +83,7 @@ class Money(commands.Cog):
                     color=Color.red(),
                     description="Invalid money format.",
                 ),
+                ephemeral=True,
             )
             return
 
@@ -93,7 +94,7 @@ class Money(commands.Cog):
                 color=Color.red(),
                 description="Amount must be greater than 0.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         MAX_TRANSFER_AMOUNT: Final[int] = 5_000_000
@@ -105,7 +106,7 @@ class Money(commands.Cog):
                 color=Color.red(),
                 description="Amount must be less than or equal to 5 Million.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         if member.id == ctx.author.id:
@@ -116,6 +117,7 @@ class Money(commands.Cog):
                     color=Color.red(),
                     description="You cannot give money to yourself.",
                 ),
+                ephemeral=True,
             )
             return
 
@@ -138,7 +140,7 @@ class Money(commands.Cog):
                 color=Color.red(),
                 description="You do not have enough money to send this amount.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         recipient_user: User = User.create_if_not_exists(

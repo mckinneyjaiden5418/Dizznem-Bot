@@ -49,6 +49,7 @@ class Admin(commands.Cog):
                     color=Color.red(),
                     description="You do not have access to this command.",
                 ),
+                ephemeral=True,
             )
             return
 
@@ -61,6 +62,7 @@ class Admin(commands.Cog):
                     color=Color.red(),
                     description="Invalid money format.",
                 ),
+                ephemeral=True,
             )
             return
 
@@ -101,7 +103,7 @@ class Admin(commands.Cog):
                 color=Color.red(),
                 description="You do not have access to this command.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         try:
@@ -113,6 +115,7 @@ class Admin(commands.Cog):
                     color=Color.red(),
                     description="Invalid money format.",
                 ),
+                ephemeral=True,
             )
             return
 
@@ -151,6 +154,7 @@ class Admin(commands.Cog):
                     color=Color.red(),
                     description="You do not have access to this command.",
                 ),
+                ephemeral=True,
             )
             return
 
@@ -162,6 +166,7 @@ class Admin(commands.Cog):
                     color=Color.red(),
                     description=f"Command **{command_name}** not found.",
                 ),
+                ephemeral=True,
             )
             return
 
