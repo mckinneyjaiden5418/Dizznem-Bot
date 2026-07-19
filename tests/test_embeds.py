@@ -1,7 +1,11 @@
 """Tests for utils/misc/embeds.py."""
 
 from discord import Embed
-from utils.misc.embeds import extract_embed_text, extract_message_embed_text
+from utils.misc.embeds import (
+    MAX_EMBED_TEXT_LENGTH,
+    extract_embed_text,
+    extract_message_embed_text,
+)
 
 
 class TestExtractEmbedText:
@@ -77,3 +81,21 @@ class TestExtractMessageEmbedText:
         empty: Embed = Embed()
         titled: Embed = Embed(title="Only me")
         assert extract_message_embed_text([empty, titled]) == "Only me"
+
+    def test_caps_single_huge_embed(self) -> None:
+        """Test that one oversized embed's text is capped, not left unbounded."""
+        embed: Embed = Embed(description="x" * 6000)
+        result: str = extract_message_embed_text([embed])
+        assert len(result) == MAX_EMBED_TEXT_LENGTH + 1  # +1 for the ellipsis
+        assert result.endswith("…")
+
+    def test_caps_combined_length_of_many_embeds(self) -> None:
+        """Test that many small embeds are capped in total, not just individually."""
+        embeds: list[Embed] = [Embed(description="y" * 500) for _ in range(10)]
+        result: str = extract_message_embed_text(embeds)
+        assert len(result) == MAX_EMBED_TEXT_LENGTH + 1
+
+    def test_short_embed_text_is_untouched(self) -> None:
+        """Test that text under the cap is not truncated or altered."""
+        embed: Embed = Embed(description="short")
+        assert extract_message_embed_text([embed]) == "short"

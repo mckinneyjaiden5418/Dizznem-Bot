@@ -2,6 +2,8 @@
 
 from discord import Embed
 
+MAX_EMBED_TEXT_LENGTH: int = 1500
+
 
 def extract_embed_text(embed: Embed) -> str:
     """Flatten an embed's readable text into a single plain-text string.
@@ -40,12 +42,19 @@ def extract_embed_text(embed: Embed) -> str:
 def extract_message_embed_text(embeds: list[Embed]) -> str:
     """Flatten all embeds on a message into one plain-text block.
 
+    A single embed can hold up to 6000 characters across its fields, which
+    would otherwise let one message dominate (or blow past) the summarize
+    char budget. The combined result is capped at MAX_EMBED_TEXT_LENGTH.
+
     Args:
         embeds (list[Embed]): The message's embeds.
 
     Returns:
-        str: Text from all embeds joined by newlines, or an empty string
-        if none contain readable text.
+        str: Text from all embeds joined by newlines and capped in length,
+        or an empty string if none contain readable text.
     """
     texts: list[str] = [extract_embed_text(embed) for embed in embeds]
-    return "\n".join(text for text in texts if text)
+    combined: str = "\n".join(text for text in texts if text)
+    if len(combined) > MAX_EMBED_TEXT_LENGTH:
+        combined = combined[:MAX_EMBED_TEXT_LENGTH].rstrip() + "…"
+    return combined
