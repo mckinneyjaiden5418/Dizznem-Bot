@@ -6,6 +6,12 @@
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
 
+## [Unreleased]
+
+### Added
+
+- `$steal` command — attempt to steal money from another user (40% success chance, cooldown, minimum target balance).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
