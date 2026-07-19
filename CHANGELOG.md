@@ -6,6 +6,8 @@
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
 - Replying to a message with `$summarize` now summarizes just that message.
+- `$summarize` count range widened from 10-50 to 5-100.
+- `$summary` now works as an alias for `$summarize`.
 
 ## [2.2.1] - 2026-7-1
 
