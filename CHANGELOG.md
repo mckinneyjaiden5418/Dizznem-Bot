@@ -21,7 +21,7 @@
 - Replying to a message with `$summarize` now summarizes just that message.
 - `$summarize` count range widened from 10-50 to 5-100.
 - `$aba` and `$rogue` now shows the correct answer even when your guess is marked correct.
-- Naruto correlated stock changed.
+- Naruto correlated stock changed (I sold everyone's stock before this so you wouldn't lose/gain any money from this change).
 
 ### Notes
 
