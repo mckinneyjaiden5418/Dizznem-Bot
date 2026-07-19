@@ -5,6 +5,7 @@
 ### Added
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
+- Replying to a message with `$summarize` now summarizes just that message.
 
 ## [2.2.1] - 2026-7-1
 
