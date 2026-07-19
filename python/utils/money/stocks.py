@@ -293,3 +293,56 @@ def sell_stock(
         conn.commit()
 
     return True, f"Sold **{quantity}x {stock_name}** for **${total_value:,.2f}**."
+
+
+def liquidate_stock(db_path: Path, stock_name: str) -> list[tuple[int, int, float, float]]:
+    """Force-sell every holder's shares of a stock at its current price.
+
+    Intended to be run once, manually, right before a stock's underlying
+    STOCK_MAP ticker is changed. Since a stock's price is the live ticker
+    price with no continuity between tickers, repointing the ticker while
+    people hold shares would instantly reprice their position for free
+    (a windfall or a wipeout unrelated to any trade). Settling everyone
+    at the pre-swap price first means the ticker change can't move
+    anyone's money.
+
+    Args:
+        db_path (Path): Path to users.db.
+        stock_name (str): Name of the stock to liquidate.
+
+    Returns:
+        list[tuple[int, int, float, float]]: (user_id, quantity, price, payout)
+        for each holder settled, in no particular order. Empty if the
+        stock currently has no holders.
+
+    Raises:
+        ValueError: If the stock does not exist.
+    """
+    with sqlite3.connect(db_path) as conn:
+        cursor: sqlite3.Cursor = conn.cursor()
+        cursor.execute("SELECT price FROM stock_prices WHERE name = ?", (stock_name,))
+        row: tuple | None = cursor.fetchone()
+        if row is None:
+            msg: str = f"Stock `{stock_name}` does not exist."
+            raise ValueError(msg)
+        price: float = row[0]
+
+        cursor.execute(
+            "SELECT user_id, quantity FROM user_stocks WHERE stock_name = ? AND quantity > 0",  # noqa: E501
+            (stock_name,),
+        )
+        holders: list[tuple[int, int]] = cursor.fetchall()
+
+        settlements: list[tuple[int, int, float, float]] = []
+        for user_id, quantity in holders:
+            payout: float = price * quantity
+            # Every holder already has a User row from buying in via $buystock,
+            # so this always resolves the existing user rather than creating one.
+            user: User = User.create_if_not_exists(user_id=user_id, username="")
+            user.money += payout
+            settlements.append((user_id, quantity, price, payout))
+
+        cursor.execute("DELETE FROM user_stocks WHERE stock_name = ?", (stock_name,))
+        conn.commit()
+
+    return settlements

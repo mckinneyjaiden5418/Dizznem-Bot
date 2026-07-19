@@ -14,6 +14,7 @@ from utils.money.stocks import (
     get_price,
     get_user_stocks,
     is_market_open,
+    liquidate_stock,
     sell_stock,
 )
 
@@ -227,3 +228,75 @@ class TestGetUserStocks:
         assert name == "Dizznem"
         assert qty == 3  # noqa: PLR2004
         assert value > 0
+
+
+class TestLiquidateStock:
+    """Tests for liquidate_stock."""
+
+    def test_invalid_stock_raises(self, db: Path) -> None:
+        """Test that liquidating a nonexistent stock raises ValueError."""
+        with pytest.raises(ValueError, match="does not exist"):
+            liquidate_stock(db, "FakeStock")
+
+    def test_no_holders_returns_empty(self, db: Path) -> None:
+        """Test that a stock with no holders returns an empty list."""
+        assert liquidate_stock(db, "Dizznem") == []
+
+    def test_pays_out_holder_at_current_price(self, funded_user: tuple) -> None:
+        """Test that a holder is paid quantity * price and settlement is reported."""
+        from user import USER_CACHE  # noqa: PLC0415
+
+        db, user_id, username = funded_user
+        price: float = get_price(db, "Dizznem")  # type: ignore[assignment]
+        buy_stock(db, user_id, username, "Dizznem", 4)
+
+        settlements = liquidate_stock(db, "Dizznem")
+
+        assert settlements == [(user_id, 4, price, price * 4)]
+        user: User = USER_CACHE[user_id]
+        assert user.money == pytest.approx(100_000.0 - price * 4 + price * 4)
+
+    def test_clears_holdings_after_liquidation(self, funded_user: tuple) -> None:
+        """Test that holders own nothing after their stock is liquidated."""
+        db, user_id, username = funded_user
+        buy_stock(db, user_id, username, "Dizznem", 4)
+        liquidate_stock(db, "Dizznem")
+        assert get_user_stocks(db, user_id) == []
+
+    def test_second_liquidation_is_a_no_op(self, funded_user: tuple) -> None:
+        """Test that liquidating an already-empty stock returns no settlements."""
+        db, user_id, username = funded_user
+        buy_stock(db, user_id, username, "Dizznem", 4)
+        liquidate_stock(db, "Dizznem")
+        assert liquidate_stock(db, "Dizznem") == []
+
+    def test_only_liquidates_named_stock(self, funded_user: tuple) -> None:
+        """Test that other stocks the user owns are left untouched."""
+        db, user_id, username = funded_user
+        buy_stock(db, user_id, username, "Dizznem", 2)
+        buy_stock(db, user_id, username, "Karma", 2)
+
+        liquidate_stock(db, "Dizznem")
+
+        holdings = get_user_stocks(db, user_id)
+        assert len(holdings) == 1
+        assert holdings[0][0] == "Karma"
+
+    def test_settles_multiple_holders(self, db: Path) -> None:
+        """Test that every holder of a stock is included in the settlement."""
+        with sqlite3.connect(db) as conn:
+            conn.execute(
+                "INSERT INTO users (id, name, money) VALUES (?, ?, ?)",
+                (1, "alice", 100_000.0),
+            )
+            conn.execute(
+                "INSERT INTO users (id, name, money) VALUES (?, ?, ?)",
+                (2, "bob", 100_000.0),
+            )
+        buy_stock(db, 1, "alice", "Dizznem", 3)
+        buy_stock(db, 2, "bob", "Dizznem", 5)
+
+        settlements = liquidate_stock(db, "Dizznem")
+
+        settled_user_ids = {s[0] for s in settlements}
+        assert settled_user_ids == {1, 2}
