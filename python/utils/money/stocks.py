@@ -18,7 +18,7 @@ STOCK_MAP: dict[str, str | None] = {
     "So6": "AAPL",
     "BigH": "MSFT",
     "Luffy": "NFLX",
-    "Naruto": "SNY",
+    "Naruto": "SPCX",
     "Ichigo": "INTC",
     "Goku": "DIS",
     "Subaru": "BTC-USD",
