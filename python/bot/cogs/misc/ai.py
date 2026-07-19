@@ -106,7 +106,9 @@ class AI(commands.Cog):
         description=f"Summarize the last X messages in this channel (max {SUMMARY_CAP}).",
     )
     @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
-    async def summarize(self, ctx: commands.Context, count: int = SUMMARY_CAP) -> None:
+    async def summarize(  # noqa: C901 - refactor later if needed
+        self, ctx: commands.Context, count: int = SUMMARY_CAP,
+    ) -> None:
         """Summarize recent messages, or a replied-to message, using AI.
 
         Args:
