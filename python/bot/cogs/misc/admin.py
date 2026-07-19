@@ -11,6 +11,7 @@ from discord import Color, Embed, Member
 from discord.ext import commands
 from log import logger  # noqa: F401
 from user import User
+from utils.money.stocks import USERS_DB_PATH, liquidate_stock
 from utils.numbers import convert_money_str, format_number
 
 
@@ -182,6 +183,73 @@ class Admin(commands.Cog):
                     description=f"**{command_name}** has no active cooldowns.",
                 ),
             )
+
+
+    @commands.hybrid_command(
+        name="retirestock",
+        description="Pay out and clear everyone's shares of a stock (admin command).",
+    )
+    async def retire_stock(self, ctx: commands.Context, stock: str) -> None:
+        """Force-sell every holder's shares of a stock at its current price.
+
+        Run this before repointing a stock's ticker in STOCK_MAP — it settles
+        every holder at the pre-swap price so the ticker change itself can't
+        hand anyone a free windfall or wipe out their position.
+
+        Args:
+            ctx (commands.Context): Context.
+            stock (str): Name of the stock to retire (case-insensitive).
+        """
+        if ctx.author.id != self.bot.admin_id:
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="You do not have access to this command.",
+                ),
+            )
+            return
+
+        try:
+            settlements: list[tuple[int, int, float, float]] = liquidate_stock(
+                USERS_DB_PATH,
+                stock,
+            )
+        except ValueError:
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description=f"`{stock}` is not a valid stock.",
+                ),
+            )
+            return
+
+        if not settlements:
+            await ctx.send(
+                embed=Embed(
+                    title="ℹ️ No Holders",  # noqa: RUF001
+                    color=Color.blue(),
+                    description=f"No one currently holds **{stock}**. Safe to change its ticker.",  # noqa: E501
+                ),
+            )
+            return
+
+        total_paid: float = sum(payout for _, _, _, payout in settlements)
+        lines: list[str] = [
+            f"<@{user_id}>: {quantity}x @ ${price:,.2f} = **${payout:,.2f}**"
+            for user_id, quantity, price, payout in settlements
+        ]
+
+        embed: Embed = Embed(
+            title=f"🏦 {stock} Retired",
+            color=Color.gold(),
+            description=(
+                f"Paid out **{len(settlements)}** holder(s), **${total_paid:,.2f}** total.\n\n"
+                + "\n".join(lines)
+            ),
+        )
+        await ctx.send(embed=embed)
 
 
 async def setup(bot: DizznemBot) -> None:
