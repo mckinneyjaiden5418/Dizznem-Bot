@@ -104,16 +104,19 @@ class AI(commands.Cog):
     @commands.hybrid_command(
         name="summarize",
         description=f"Summarize the last X messages in this channel (max {SUMMARY_CAP}).",
+        aliases=["summary"],
     )
     @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
     async def summarize(  # noqa: C901 - refactor later if needed
-        self, ctx: commands.Context, count: int = SUMMARY_CAP,
+        self,
+        ctx: commands.Context,
+        count: int = SUMMARY_CAP,
     ) -> None:
         """Summarize recent messages, or a replied-to message, using AI.
 
         Args:
             ctx (commands.Context): Context.
-            count (int): Number of messages to summarize (10-50, default 50).
+            count (int): Number of messages to summarize (1-100, default 100).
                 Ignored when replying to a message.
         """
         clamp_note: str | None
