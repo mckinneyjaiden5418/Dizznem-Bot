@@ -15,6 +15,10 @@
 
 - `$aba` / `$roguelineage` no longer show "Message could not be loaded" (loading embed is edited in place instead of deleted).
 
+### Changed
+
+- ABA/Rogue trivia re-rolls entries with no wiki image instead of asking an unanswerable question.
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
