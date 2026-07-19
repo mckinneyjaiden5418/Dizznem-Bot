@@ -9,10 +9,10 @@ from log import logger
 from utils.misc.ai import get_ai_summary
 from utils.misc.embeds import extract_message_embed_text
 
-SUMMARY_CAP: int = 50
+SUMMARY_CAP: int = 100
 CHAR_BUDGET: int = 30_000
 DISCORD_EMBED_DESC_LIMIT: int = 4096
-MIN_SUMMARY_MESSAGES: int = 10
+MIN_SUMMARY_MESSAGES: int = 1
 
 
 def _clamp_count(count: int) -> tuple[int, str | None]:
