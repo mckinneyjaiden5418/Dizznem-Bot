@@ -6,6 +6,10 @@
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
 
+### Fixed
+
+- `$aba` / `$roguelineage` no longer show "Message could not be loaded" (loading embed is edited in place instead of deleted).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
