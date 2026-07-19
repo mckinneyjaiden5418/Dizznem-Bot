@@ -11,7 +11,7 @@ from log import logger  # noqa: F401
 from user import User
 from utils.general import get_user_answer, reset_cd
 from utils.money.roblox import check_answer, question
-from utils.money.steal import MIN_TARGET_BALANCE, resolve_steal
+from utils.money.steal import MIN_TARGET_BALANCE, MIN_THIEF_BALANCE, resolve_steal
 from utils.money.trivia import VALID_ANSWERS, build_trivia_embed, get_random_question
 from utils.numbers import convert_money_str, format_number
 
@@ -214,7 +214,21 @@ class MoneyMaking(commands.Cog):
             user_id=ctx.author.id,
             username=ctx.author.name,
         )
-        target: User = User.create_if_not_exists(user_id=member.id, username=member.name)
+        target: User = User.create_if_not_exists(
+            user_id=member.id, username=member.name,
+        )
+
+        if thief.money < MIN_THIEF_BALANCE:
+            reset_cd(ctx=ctx)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="You need at least $1,000 to attempt a steal.",
+                ),
+                ephemeral=True,
+            )
+            return
 
         if target.money < MIN_TARGET_BALANCE:
             reset_cd(ctx=ctx)

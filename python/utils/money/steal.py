@@ -4,6 +4,7 @@ import random
 
 SUCCESS_CHANCE: float = 0.4
 MIN_TARGET_BALANCE: float = 10_000.0
+MIN_THIEF_BALANCE: float = 1_000.0
 STEAL_PERCENT_RANGE: tuple[float, float] = (0.10, 0.25)
 FAIL_PENALTY_PERCENT: float = 0.10
 
