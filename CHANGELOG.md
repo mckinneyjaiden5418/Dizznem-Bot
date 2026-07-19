@@ -11,6 +11,10 @@
 
 - ABA/Rogue trivia now shows the correct answer even when your guess is marked correct.
 
+### Fixed
+
+- `$aba` / `$roguelineage` no longer show "Message could not be loaded" (loading embed is edited in place instead of deleted).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
