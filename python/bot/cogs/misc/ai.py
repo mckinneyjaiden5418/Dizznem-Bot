@@ -3,7 +3,7 @@
 import asyncio
 
 from bot.bot import DizznemBot
-from discord import Color, Embed
+from discord import Color, Embed, HTTPException, Message
 from discord.ext import commands
 from log import logger
 from utils.misc.ai import get_ai_summary
@@ -70,31 +70,61 @@ class AI(commands.Cog):
         """
         self.bot: DizznemBot = bot
 
+    async def _get_replied_message(self, ctx: commands.Context) -> Message | None:
+        """Get the message the command invocation replied to, if any.
+
+        Args:
+            ctx (commands.Context): Context.
+
+        Returns:
+            Message | None: The replied-to message, or None if the command
+            was not used as a reply or the message can't be fetched.
+        """
+        reference = ctx.message.reference
+        if reference is None:
+            return None
+        if isinstance(reference.resolved, Message):
+            return reference.resolved
+        if reference.message_id is None:
+            return None
+        try:
+            return await ctx.channel.fetch_message(reference.message_id)
+        except HTTPException:
+            return None
+
     @commands.hybrid_command(
         name="summarize",
         description=f"Summarize the last X messages in this channel (max {SUMMARY_CAP}).",
     )
     @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
     async def summarize(self, ctx: commands.Context, count: int = SUMMARY_CAP) -> None:
-        """Summarize recent messages in this channel using AI.
+        """Summarize recent messages, or a replied-to message, using AI.
 
         Args:
             ctx (commands.Context): Context.
-            count (int): Number of messages to summarize (10-50, default 50).
+            count (int): Number of messages to summarize
+                (10-50, default 50). Ignored when replying to a message.
         """
         clamp_note: str | None
         count, clamp_note = _clamp_count(count)
 
         await ctx.defer()
 
-        logger.debug(f"Fetching messages for summarize in channel {ctx.channel.id}.")
-        messages: list = []
-        async for msg in ctx.channel.history(limit=count * 3):
-            if msg.author.bot or not msg.clean_content.strip():
-                continue
-            messages.append(msg)
-            if len(messages) >= count:
-                break
+        replied: Message | None = await self._get_replied_message(ctx)
+        if replied is not None:
+            messages: list = [replied]
+            clamp_note = None
+        else:
+            logger.debug(
+                f"Fetching messages for summarize in channel {ctx.channel.id}.",
+            )
+            messages: list = []
+            async for msg in ctx.channel.history(limit=count * 3):
+                if msg.author.bot or not msg.clean_content.strip():
+                    continue
+                messages.append(msg)
+                if len(messages) >= count:
+                    break
 
         if not messages:
             embed: Embed = Embed(
@@ -136,8 +166,13 @@ class AI(commands.Cog):
             footer_parts.append("Note: some older messages were trimmed due to length.")
         footer: str = " • ".join(footer_parts)
 
+        title: str = (
+            "📋 Message Summary"
+            if replied is not None
+            else f"📋 Channel Summary — last {actual_count} message(s)"
+        )
         embed: Embed = Embed(
-            title=f"📋 Channel Summary — last {actual_count} message(s)",
+            title=title,
             color=Color.blurple(),
             description=summary,
         )
