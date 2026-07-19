@@ -9,6 +9,7 @@
 - `$summarize` count range widened from 10-50 to 5-100.
 - `$summary` now works as an alias for `$summarize`.
 - `$retirestock` admin command to pay out and clear a stock's holders before its ticker is changed.
+- `$tictactoe <user>` / `$ttt <user>` for interactive 1v1 Tic-Tac-Toe games.
 
 ### Fixed
 
