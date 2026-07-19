@@ -6,7 +6,7 @@
 
 - `$summary` alias for `$summarize`.
 - `$retirestock` admin command to pay out and clear a stock's holders before its ticker is changed.
-- `$tictactoe` (or `ttt`) command.
+- `$tictactoe <user>` / `$ttt <user>` for interactive 1v1 Tic-Tac-Toe games.
 
 ### Fixed
 

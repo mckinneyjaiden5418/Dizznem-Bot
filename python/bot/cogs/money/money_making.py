@@ -5,12 +5,13 @@ from typing import Final
 
 import aiohttp
 from bot.bot import DizznemBot
-from discord import Color, Embed, Message
+from discord import Color, Embed, Member, Message
 from discord.ext import commands
 from log import logger  # noqa: F401
 from user import User
 from utils.general import get_user_answer, reset_cd
 from utils.money.roblox import check_answer, question
+from utils.money.steal import MIN_TARGET_BALANCE, resolve_steal
 from utils.money.trivia import VALID_ANSWERS, build_trivia_embed, get_random_question
 from utils.numbers import convert_money_str, format_number
 
@@ -118,7 +119,7 @@ class MoneyMaking(commands.Cog):
                 color=Color.red(),
                 description="Invalid money format.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         user_money_rounded: float = round(user.money, 2)
@@ -131,7 +132,7 @@ class MoneyMaking(commands.Cog):
                 color=Color.red(),
                 description="Gamble amount must be greater than 0.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         if user_money_rounded < gamble_amount:
@@ -141,7 +142,7 @@ class MoneyMaking(commands.Cog):
                 color=Color.red(),
                 description="You do not have enough money to gamble that amount.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         WIN: Final[int] = 400
@@ -181,6 +182,73 @@ class MoneyMaking(commands.Cog):
                 title="💎 JACKPOT!",
                 color=Color.gold(),
                 description=f"You hit the jackpot and won **${formatted_winnings}**!",
+            )
+
+        await ctx.send(embed=embed)
+
+    @commands.hybrid_command(
+        name="steal",
+        description="Attempt to steal money from another user",
+    )
+    @commands.cooldown(rate=1, per=3600, type=commands.BucketType.user)
+    async def steal(self, ctx: commands.Context, member: Member) -> None:
+        """Steal command.
+
+        Args:
+            ctx (commands.Context): Context.
+            member (Member): Member to attempt to steal from.
+        """
+        if member.id == ctx.author.id:
+            reset_cd(ctx=ctx)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="You cannot steal from yourself.",
+                ),
+                ephemeral=True,
+            )
+            return
+
+        thief: User = User.create_if_not_exists(
+            user_id=ctx.author.id,
+            username=ctx.author.name,
+        )
+        target: User = User.create_if_not_exists(user_id=member.id, username=member.name)
+
+        if target.money < MIN_TARGET_BALANCE:
+            reset_cd(ctx=ctx)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description=f"**{member.display_name}** doesn't have enough money to be worth stealing from.",  # noqa: E501
+                ),
+                ephemeral=True,
+            )
+            return
+
+        success: bool
+        amount: float
+        success, amount = resolve_steal(
+            stealer_money=thief.money,
+            target_money=target.money,
+        )
+
+        if success:
+            thief.money += amount
+            target.money -= amount
+            embed: Embed = Embed(
+                title="🕵️ Heist Successful",
+                color=Color.green(),
+                description=f"You stole **${format_number(amount)}** from **{member.display_name}**!",  # noqa: E501
+            )
+        else:
+            thief.money -= amount
+            embed: Embed = Embed(
+                title="🚨 Caught!",
+                color=Color.red(),
+                description=f"You got caught trying to steal from **{member.display_name}** and paid a **${format_number(amount)}** fine!",  # noqa: E501
             )
 
         await ctx.send(embed=embed)
@@ -341,6 +409,7 @@ class MoneyMaking(commands.Cog):
                     color=Color.red(),
                     description="Please answer with **a**, **b**, **c**, or **d**.",
                 ),
+                ephemeral=True,
             )
             return
 
