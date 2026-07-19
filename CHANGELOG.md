@@ -25,6 +25,10 @@
 
 - `$steal` command — attempt to steal money from another user (40% success chance, cooldown, minimum target balance).
 
+### Changed
+
+- Error messages (invalid input, no access, insufficient funds) are now only visible to the user who ran the command (slash commands only).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed

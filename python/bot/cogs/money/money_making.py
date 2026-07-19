@@ -119,7 +119,7 @@ class MoneyMaking(commands.Cog):
                 color=Color.red(),
                 description="Invalid money format.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         user_money_rounded: float = round(user.money, 2)
@@ -132,7 +132,7 @@ class MoneyMaking(commands.Cog):
                 color=Color.red(),
                 description="Gamble amount must be greater than 0.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         if user_money_rounded < gamble_amount:
@@ -142,7 +142,7 @@ class MoneyMaking(commands.Cog):
                 color=Color.red(),
                 description="You do not have enough money to gamble that amount.",
             )
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, ephemeral=True)
             return
 
         WIN: Final[int] = 400
@@ -409,6 +409,7 @@ class MoneyMaking(commands.Cog):
                     color=Color.red(),
                     description="Please answer with **a**, **b**, **c**, or **d**.",
                 ),
+                ephemeral=True,
             )
             return
 
