@@ -257,7 +257,7 @@ class MoneyMaking(commands.Cog):
             user.money += earnings
             embed: Embed = Embed(
                 title="✅ Correct!",
-                description=f"You won **${format_number(earnings)}**!",
+                description=f"You won **${format_number(earnings)}**!\n\nThe answer was **{answer}**.",  # noqa: E501
                 color=Color.green(),
             )
             await ctx.send(embed=embed)
