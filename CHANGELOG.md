@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Added
+
+- `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
