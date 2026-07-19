@@ -1,5 +1,21 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Added
+
+- `$retirestock` admin command to pay out and clear a stock's holders before its ticker is changed.
+- Replying to a message with `$summarize` now summarizes just that message.
+
+### Changed
+
+- ABA/Rogue trivia re-rolls entries with no wiki image instead of asking an unanswerable question.
+
+### Fixed
+
+- ABA/Rogue trivia now shows the correct answer even when your guess is marked correct.
+- `$aba` / `$roguelineage` no longer show "Message could not be loaded" (loading embed is edited in place instead of deleted).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
