@@ -136,6 +136,7 @@ python3 main.py
 | `$profile` | View your full profile |
 | `$inspiration` | Get an inspirational quote |
 | `$count` | Increment the server count |
+| `$tictactoe <user>` | Challenge someone to Tic-Tac-Toe |
 
 ---
 

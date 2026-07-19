@@ -6,6 +6,7 @@
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
 - `$retirestock` admin command to pay out and clear a stock's holders before its ticker is changed.
+- `$tictactoe <user>` / `$ttt <user>` for interactive 1v1 Tic-Tac-Toe games.
 
 ### Fixed
 
