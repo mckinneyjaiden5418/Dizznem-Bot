@@ -295,7 +295,10 @@ def sell_stock(
     return True, f"Sold **{quantity}x {stock_name}** for **${total_value:,.2f}**."
 
 
-def liquidate_stock(db_path: Path, stock_name: str) -> list[tuple[int, int, float, float]]:
+def liquidate_stock(
+    db_path: Path,
+    stock_name: str,
+) -> list[tuple[int, int, float, float]]:
     """Force-sell every holder's shares of a stock at its current price.
 
     Intended to be run once, manually, right before a stock's underlying
@@ -328,7 +331,7 @@ def liquidate_stock(db_path: Path, stock_name: str) -> list[tuple[int, int, floa
         price: float = row[0]
 
         cursor.execute(
-            "SELECT user_id, quantity FROM user_stocks WHERE stock_name = ? AND quantity > 0",  # noqa: E501
+            "SELECT user_id, quantity FROM user_stocks WHERE stock_name = ? AND quantity > 0",
             (stock_name,),
         )
         holders: list[tuple[int, int]] = cursor.fetchall()
