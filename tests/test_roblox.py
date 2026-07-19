@@ -283,6 +283,25 @@ class TestFetchImageUrl:
         result: str | None = fetch_image_url("https://example.fandom.com", "Goku")
         assert result == "https://img.example.com/goku.png"
 
+    def test_prefers_original_over_thumbnail(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that the native-resolution original wins over the thumbnail."""
+        payload: dict = {
+            "query": {
+                "pages": {
+                    "1": {
+                        "original": {"source": "https://img.example.com/goku-full.png"},
+                        "thumbnail": {"source": "https://img.example.com/goku-800.png"},
+                    },
+                },
+            },
+        }
+        monkeypatch.setattr(roblox_util, "api_get", lambda *_a, **_kw: payload)
+        result: str | None = fetch_image_url("https://example.fandom.com", "Goku")
+        assert result == "https://img.example.com/goku-full.png"
+
     def test_no_thumbnail_returns_none(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that None is returned when no thumbnail exists."""
         payload: dict = {"query": {"pages": {"1": {"title": "Goku"}}}}

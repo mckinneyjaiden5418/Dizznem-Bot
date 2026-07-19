@@ -145,7 +145,11 @@ def fetch_category_members(wiki_base: str, category: str) -> list[str]:
 
 
 def fetch_image_url(wiki_base: str, title: str) -> str | None:
-    """Fetch the thumbnail URL for a wiki page's lead image.
+    """Fetch the URL for a wiki page's lead image at native resolution.
+
+    The original image is preferred over a thumbnail: requesting a
+    thumbnail wider than the source makes Fandom upscale it, which is
+    what made some trivia images blurry.
 
     Args:
         wiki_base (str): Base URL of the wiki.
@@ -159,12 +163,16 @@ def fetch_image_url(wiki_base: str, title: str) -> str | None:
         {
             "prop": "pageimages",
             "titles": title,
+            "piprop": "original|thumbnail",
             "pithumbsize": "800",
             "pilicense": "any",
         },
     )
     pages: dict = data.get("query", {}).get("pages", {})
     for page in pages.values():
+        original: dict | None = page.get("original")
+        if original:
+            return original["source"]
         thumbnail: dict | None = page.get("thumbnail")
         if thumbnail:
             return thumbnail["source"]

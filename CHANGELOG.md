@@ -6,6 +6,10 @@
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
 
+### Fixed
+
+- Blurry ABA/Rogue trivia images (wiki was upscaling small images; the original full-resolution image is now used).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
