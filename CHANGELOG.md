@@ -6,6 +6,10 @@
 
 - `$summarize` now reads text embedded in messages (titles, descriptions, fields, footers), not just plain content.
 
+### Fixed
+
+- ABA/Rogue trivia now shows the correct answer even when your guess is marked correct.
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
