@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [2.3.1] - 2026-7-19
+
+### Fixed
+
+- Being able to use `$steal` with negative balance -- you must have at least $1,000 now.
+
 ## [2.3.0] - 2026-7-19
 
 ### Added
