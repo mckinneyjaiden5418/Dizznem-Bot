@@ -19,6 +19,12 @@
 
 - ABA/Rogue trivia re-rolls entries with no wiki image instead of asking an unanswerable question.
 
+## [Unreleased]
+
+### Added
+
+- `$steal` command — attempt to steal money from another user (40% success chance, cooldown, minimum target balance).
+
 ## [2.2.1] - 2026-7-1
 
 ### Removed
