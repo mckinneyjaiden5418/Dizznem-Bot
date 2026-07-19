@@ -213,8 +213,7 @@ class MoneyMaking(commands.Cog):
             answer: str
             image_url, trivia_question, answer = await question(game=game)
         except aiohttp.ClientError:
-            await loading_message.delete()
-            await ctx.send(
+            await loading_message.edit(
                 embed=Embed(
                     title="⚠️ Wiki Unavailable",
                     description="Couldn't reach the wiki right now. Try again in a moment.",
@@ -222,8 +221,6 @@ class MoneyMaking(commands.Cog):
                 ),
             )
             return
-
-        await loading_message.delete()
 
         question_embed: Embed = Embed(
             title=title,
@@ -236,7 +233,7 @@ class MoneyMaking(commands.Cog):
         else:
             question_embed.set_footer(text="(No image available for this entry)")
 
-        await ctx.send(embed=question_embed)
+        await loading_message.edit(embed=question_embed)
 
         user_answer: str | None = await get_user_answer(
             bot=self.bot,
@@ -257,7 +254,7 @@ class MoneyMaking(commands.Cog):
             user.money += earnings
             embed: Embed = Embed(
                 title="✅ Correct!",
-                description=f"You won **${format_number(earnings)}**!",
+                description=f"You won **${format_number(earnings)}**!\n\nThe answer was **{answer}**.",  # noqa: E501
                 color=Color.green(),
             )
             await ctx.send(embed=embed)
