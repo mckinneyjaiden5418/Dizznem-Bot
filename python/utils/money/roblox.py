@@ -40,6 +40,7 @@ CACHE_TTL: timedelta = timedelta(hours=24)
 
 FUZZY_THRESHOLD: int = 80
 MIN_ANSWER_LENGTH: int = 4
+MAX_IMAGE_ATTEMPTS: int = 5
 
 
 class CharacterEntry(TypedDict):
@@ -290,6 +291,14 @@ async def question(game: str) -> tuple[str | None, str, str]:
 
     entry: CharacterEntry = random.choice(entries)  # noqa: S311
     image_url: str | None = await resolve_image(wiki_base, entry)
+
+    # Some wiki pages have no lead image, making the question unanswerable.
+    # Re-roll a bounded number of times before falling back to an imageless one.
+    for _ in range(MAX_IMAGE_ATTEMPTS - 1):
+        if image_url is not None:
+            break
+        entry = random.choice(entries)  # noqa: S311
+        image_url = await resolve_image(wiki_base, entry)
 
     return image_url, trivia_question, entry["name"]
 

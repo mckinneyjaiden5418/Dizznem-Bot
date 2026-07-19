@@ -562,6 +562,65 @@ class TestQuestion:
         await question("aba")
         assert repopulate_called
 
+    async def test_retries_until_image_found(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that imageless entries are re-rolled until one with an image is found."""
+        bad: CharacterEntry = make_entry("Bad")
+        good: CharacterEntry = make_entry("Good", "https://img.example.com/good.png")
+        inject_cache("aba", {"character": [bad, good]})
+
+        picks: list[CharacterEntry] = [bad, bad, good]
+
+        def fake_choice(_seq: list) -> CharacterEntry:
+            return picks.pop(0)
+
+        async def fake_ensure(game: str) -> None:
+            pass
+
+        async def fake_resolve(_wiki: str, entry: CharacterEntry) -> str | None:
+            return entry["image_url"]
+
+        monkeypatch.setattr(roblox_util.random, "choice", fake_choice)
+        monkeypatch.setattr(roblox_util, "ensure_cache", fake_ensure)
+        monkeypatch.setattr(roblox_util, "resolve_image", fake_resolve)
+
+        image_url: str | None
+        _trivia_question: str
+        answer: str
+        image_url, _trivia_question, answer = await question("aba")
+        assert answer == "Good"
+        assert image_url == "https://img.example.com/good.png"
+
+    async def test_retries_are_bounded(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that re-rolls stop after MAX_IMAGE_ATTEMPTS when no images exist."""
+        bad: CharacterEntry = make_entry("Bad")
+        inject_cache("aba", {"character": [bad]})
+
+        resolve_calls: int = 0
+
+        async def fake_ensure(game: str) -> None:
+            pass
+
+        async def fake_resolve(_wiki: str, _entry: CharacterEntry) -> None:
+            nonlocal resolve_calls
+            resolve_calls += 1
+            return None
+
+        monkeypatch.setattr(roblox_util, "ensure_cache", fake_ensure)
+        monkeypatch.setattr(roblox_util, "resolve_image", fake_resolve)
+
+        image_url: str | None
+        _trivia_question: str
+        _answer: str
+        image_url, _trivia_question, _answer = await question("aba")
+        assert image_url is None
+        assert resolve_calls == roblox_util.MAX_IMAGE_ATTEMPTS
+
     async def test_none_image_url_is_allowed(
         self,
         monkeypatch: pytest.MonkeyPatch,
