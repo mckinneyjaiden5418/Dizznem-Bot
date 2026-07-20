@@ -167,7 +167,11 @@ class StoreView(View):
         return embed
 
     def _check_balance(self, cost: float) -> bool:
-        """Check if the user can afford an item.
+        """Check if the user can currently afford an item.
+
+        Re-reads the live balance rather than relying on the balance the
+        view was created with, since that snapshot can go stale (e.g. the
+        user spends money elsewhere) while this view is still open.
 
         Args:
             cost (float): Item cost.
@@ -175,17 +179,18 @@ class StoreView(View):
         Returns:
             bool: True if affordable.
         """
-        return self.balance >= cost
+        user: User = User.create_if_not_exists(user_id=self.user_id, username="")
+        return user.money >= cost
 
     async def _deduct(self, cost: float) -> None:
-        """Deduct cost from user balance via User cache.
+        """Deduct cost from the user's live balance.
 
         Args:
             cost (float): Amount to deduct.
         """
         user: User = User.create_if_not_exists(user_id=self.user_id, username="")
         user.money -= cost
-        self.balance -= cost
+        self.balance = user.money
 
     async def _insufficient_funds(self, interaction: Interaction) -> None:
         """Send insufficient funds message.
@@ -482,6 +487,18 @@ class PrestigeConfirmView(View):
             _ (Button): Unused button reference.
         """
         user: User = User.create_if_not_exists(user_id=self.user_id, username="")
+        if user.money < self.cost:
+            self.stop()
+            await interaction.response.edit_message(
+                embed=Embed(
+                    title="❌ Insufficient Funds",
+                    color=Color.red(),
+                    description="Your balance changed and you can no longer afford to prestige.",  # noqa: E501
+                ),
+                view=None,
+            )
+            return
+
         user.money = 0
         user.prestige += 1
 
