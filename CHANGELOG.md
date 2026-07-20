@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- The log file was wiped every time the bot restarted, destroying the exact evidence needed to diagnose whatever crash caused the restart. Logs now append instead of overwrite.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
