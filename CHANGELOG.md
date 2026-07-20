@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Up to a minute of money/level/prestige changes could be silently lost if the bot process was stopped (e.g. a `systemctl restart` or `docker stop`) rather than crashing -- unsaved data is now flushed to disk immediately when the stop signal is received, instead of relying only on the periodic autosave.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
