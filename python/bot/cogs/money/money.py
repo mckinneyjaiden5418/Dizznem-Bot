@@ -163,7 +163,11 @@ class Money(commands.Cog):
         name="networth",
         description="Get your net worth",
     )
-    async def networth(self, ctx: commands.Context, member: Member | None) -> None:
+    async def networth(
+        self,
+        ctx: commands.Context,
+        member: Member | None = None,
+    ) -> None:
         """Net worth command.
 
         Args:

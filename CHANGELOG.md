@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `/networth` and `$networth` required you to tag a member even to check your own net worth -- now works with no argument, matching `/balance`.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
