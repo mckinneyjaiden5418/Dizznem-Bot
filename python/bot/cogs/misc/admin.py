@@ -11,6 +11,7 @@ from discord import Color, Embed, Member
 from discord.ext import commands
 from log import logger  # noqa: F401
 from user import User
+from utils.money.prediction_market import cancel_market, resolve_market
 from utils.money.stocks import USERS_DB_PATH, liquidate_stock
 from utils.numbers import convert_money_str, format_number
 
@@ -253,6 +254,113 @@ class Admin(commands.Cog):
                 f"Paid out **{len(settlements)}** holder(s), **${total_paid:,.2f}** total.\n\n"
                 + "\n".join(lines)
             ),
+        )
+        await ctx.send(embed=embed)
+
+
+    @commands.hybrid_command(
+        name="resolvemarket",
+        description="Resolve a prediction market and pay out winners (admin command).",
+    )
+    async def resolve_market_cmd(
+        self,
+        ctx: commands.Context,
+        market_id: int,
+        outcome: str,
+    ) -> None:
+        """Resolve a prediction market, paying out the winning side.
+
+        Args:
+            ctx (commands.Context): Context.
+            market_id (int): Market ID to resolve.
+            outcome (str): "yes" or "no".
+        """
+        if ctx.author.id != self.bot.admin_id:
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="You do not have access to this command.",
+                ),
+                ephemeral=True,
+            )
+            return
+
+        try:
+            settlements: list[tuple[int, float, float]] = resolve_market(
+                USERS_DB_PATH,
+                market_id,
+                outcome,
+            )
+        except ValueError as exc:
+            await ctx.send(
+                embed=Embed(title="Error", color=Color.red(), description=str(exc)),
+                ephemeral=True,
+            )
+            return
+
+        if not settlements:
+            await ctx.send(
+                embed=Embed(
+                    title=f"🔮 Market #{market_id} Resolved: {outcome.upper()}",
+                    color=Color.gold(),
+                    description="No bets were placed on this market.",
+                ),
+            )
+            return
+
+        total_paid: float = sum(payout for _, _, payout in settlements)
+        lines: list[str] = [
+            f"<@{user_id}>: staked ${stake:,.2f} → **${payout:,.2f}**"
+            for user_id, stake, payout in settlements
+        ]
+
+        embed: Embed = Embed(
+            title=f"🔮 Market #{market_id} Resolved: {outcome.upper()}",
+            color=Color.gold(),
+            description=(
+                f"Paid out **{len(settlements)}** bettor(s), **${total_paid:,.2f}** total.\n\n"
+                + "\n".join(lines)
+            ),
+        )
+        await ctx.send(embed=embed)
+
+    @commands.hybrid_command(
+        name="cancelmarket",
+        description="Cancel a prediction market and refund all bets (admin command).",
+    )
+    async def cancel_market_cmd(self, ctx: commands.Context, market_id: int) -> None:
+        """Cancel a prediction market and refund every bettor.
+
+        Args:
+            ctx (commands.Context): Context.
+            market_id (int): Market ID to cancel.
+        """
+        if ctx.author.id != self.bot.admin_id:
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="You do not have access to this command.",
+                ),
+                ephemeral=True,
+            )
+            return
+
+        try:
+            refunds: list[tuple[int, float]] = cancel_market(USERS_DB_PATH, market_id)
+        except ValueError as exc:
+            await ctx.send(
+                embed=Embed(title="Error", color=Color.red(), description=str(exc)),
+                ephemeral=True,
+            )
+            return
+
+        total_refunded: float = sum(amount for _, amount in refunds)
+        embed = Embed(
+            title=f"🔮 Market #{market_id} Cancelled",
+            color=Color.greyple(),
+            description=f"Refunded **{len(refunds)}** bettor(s), **${total_refunded:,.2f}** total.",  # noqa: E501
         )
         await ctx.send(embed=embed)
 

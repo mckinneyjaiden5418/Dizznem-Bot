@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Added
+
+- Prediction markets: `$createmarket <question>` to open a yes/no market, `$markets` / `$market <id>` to browse them, and `$predict <id> <yes/no> <amount>` to bet in-game money on the outcome. Winners split the losing side's pool proportional to their stake once an admin resolves the market with `$resolvemarket <id> <yes/no>` (or refunds everyone with `$cancelmarket <id>`).
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
