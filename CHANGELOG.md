@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Unexpected command errors no longer fail silently -- you now get a "Something Went Wrong" message instead of a dead/failed interaction with no feedback.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed

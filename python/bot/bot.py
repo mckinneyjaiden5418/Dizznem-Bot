@@ -155,6 +155,13 @@ class DizznemBot(commands.Bot):
             return
 
         else:
+            logger.error(f"Unhandled error in {ctx.command}: {error!r}")
+            embed = Embed(
+                title="⚠️ Something Went Wrong",
+                color=Color.red(),
+                description="An unexpected error occurred. Please try again.",
+            )
+            await ctx.send(embed=embed)
             raise error
 
         await ctx.send(embed=embed)
