@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Changed
+
+- `$gamble` error messages are more helpful: an invalid amount now shows example formats (`500`, `1,000`, `$250`, `all`, `half`), and trying to gamble more than you have now shows your actual balance instead of just saying "not enough money."
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed

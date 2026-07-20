@@ -115,9 +115,13 @@ class MoneyMaking(commands.Cog):
         except ValueError:
             reset_cd(ctx=ctx)
             embed: Embed = Embed(
-                title="Error",
+                title="❌ Invalid Amount",
                 color=Color.red(),
-                description="Invalid money format.",
+                description=(
+                    f"**{amount}** isn't a valid amount.\n\n"
+                    "Try a number like `500`, `1,000`, or `$250` — "
+                    "or use `all` / `half`."
+                ),
             )
             await ctx.send(embed=embed, ephemeral=True)
             return
@@ -138,9 +142,12 @@ class MoneyMaking(commands.Cog):
         if user_money_rounded < gamble_amount:
             reset_cd(ctx=ctx)
             embed: Embed = Embed(
-                title="Error",
+                title="❌ Not Enough Money",
                 color=Color.red(),
-                description="You do not have enough money to gamble that amount.",
+                description=(
+                    f"You only have **${format_number(user_money_rounded)}** "
+                    f"but tried to gamble **${format_number(gamble_amount)}**."
+                ),
             )
             await ctx.send(embed=embed, ephemeral=True)
             return
