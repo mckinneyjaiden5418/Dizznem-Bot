@@ -55,6 +55,7 @@ class DizznemBot(commands.Bot):
         self.cache: dict[int, deque] = {}
         self.ai_cooldowns: dict[int, float] = {}
         self.ai_semaphore: asyncio.Semaphore = asyncio.Semaphore(3)
+        self._sent_ready_message: bool = False
 
     async def setup_hook(self) -> None:
         """Load all cogs and start autosave for database."""
@@ -86,12 +87,24 @@ class DizznemBot(commands.Bot):
         logger.info("Autosave task started.")
 
     async def on_ready(self) -> None:
-        """Bot startup."""
-        channel: TextChannel = cast(
-            "TextChannel",
-            self.get_channel(self.test_channel_id),
-        )
-        await channel.send("Hello")
+        """Bot startup.
+
+        Note: on_ready can fire more than once (e.g. on gateway reconnects),
+        so the startup message is only sent the first time.
+        """
+        if self._sent_ready_message:
+            logger.info("Bot reconnected.")
+            return
+
+        channel: TextChannel | None = self.get_channel(self.test_channel_id)  # type: ignore[assignment]
+        if channel is None:
+            logger.error(
+                f"Test channel {self.test_channel_id} not found; skipping startup message.",  # noqa: E501
+            )
+        else:
+            await channel.send("Hello")
+
+        self._sent_ready_message = True
         logger.info("Bot started.")
 
     async def on_command_error(self, ctx: commands.Context, error: Exception) -> None:

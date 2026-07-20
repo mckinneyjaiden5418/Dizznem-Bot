@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- The startup "Hello" message could crash with an error if the configured test channel wasn't found, and would resend every time the bot reconnected to Discord (not just on first startup). Now it's skipped gracefully if the channel is missing, and only ever sent once.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
