@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `$store` purchases and PRESTIGE could go through (and PRESTIGE could grant its reward) using a stale balance check from when the store menu was opened, instead of your current balance -- if your balance dropped while the menu was still open (e.g. from gambling), a purchase could push your balance negative, or PRESTIGE could still succeed at less than the true cost. Both now re-check your live balance right before spending it.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
