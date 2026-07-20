@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Changed
+
+- `$help` now groups commands into categories (💰 Economy, 🎵 Music, 🎮 Games, 👤 Profile, 🤖 AI, ℹ️ Misc) instead of one flat alphabetical list, and admin-only commands are hidden unless you're the bot admin.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
