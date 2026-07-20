@@ -1,18 +1,35 @@
 """AI bot commands."""
 
 import asyncio
+from datetime import datetime, timezone
+from pathlib import Path
 
 from bot.bot import DizznemBot
-from discord import Color, Embed, HTTPException, Message
-from discord.ext import commands
+from discord import Color, Embed, Forbidden, HTTPException, Message, TextChannel
+from discord.ext import commands, tasks
 from log import logger
 from utils.misc.ai import get_ai_summary
+from utils.misc.auto_summary import (
+    MAX_INTERVAL_HOURS,
+    MIN_INTERVAL_HOURS,
+    clamp_interval_hours,
+    disable_auto_summary,
+    enable_auto_summary,
+    ensure_auto_summary_db,
+    get_channel_config,
+    get_due_channels,
+    update_last_summary,
+)
 from utils.misc.embeds import extract_message_embed_text
 
 SUMMARY_CAP: int = 100
 CHAR_BUDGET: int = 30_000
 DISCORD_EMBED_DESC_LIMIT: int = 4096
 MIN_SUMMARY_MESSAGES: int = 1
+
+AUTO_SUMMARY_DB_PATH: Path = Path("data/auto_summary.db")
+DEFAULT_AUTO_SUMMARY_INTERVAL_HOURS: int = 6
+AUTO_SUMMARY_CHECK_MINUTES: int = 15
 
 
 def _clamp_count(count: int) -> tuple[int, str | None]:
@@ -78,6 +95,88 @@ class AI(commands.Cog):
             bot (DizznemBot): Dizznem Bot.
         """
         self.bot: DizznemBot = bot
+        ensure_auto_summary_db(AUTO_SUMMARY_DB_PATH)
+        self._auto_summary_loop.start()
+
+    def cog_unload(self) -> None:
+        """Stop background task on unload."""
+        self._auto_summary_loop.cancel()
+
+    @tasks.loop(minutes=AUTO_SUMMARY_CHECK_MINUTES)
+    async def _auto_summary_loop(self) -> None:
+        """Post an AI summary to any channel whose automatic interval has elapsed."""
+        due: list[tuple[int, int, str]] = get_due_channels(AUTO_SUMMARY_DB_PATH)
+        for channel_id, interval_hours, last_summary_at in due:
+            try:
+                await self._post_auto_summary(channel_id, interval_hours, last_summary_at)
+            except (HTTPException, Forbidden) as e:
+                logger.error(f"Auto-summary failed for channel {channel_id}: {e}")
+            finally:
+                # Always advance the timestamp so a failing channel (e.g. the
+                # bot lost access) doesn't get retried every check interval.
+                update_last_summary(AUTO_SUMMARY_DB_PATH, channel_id)
+
+    @_auto_summary_loop.before_loop
+    async def _before_auto_summary_loop(self) -> None:
+        """Wait until bot is ready before starting the loop."""
+        await self.bot.wait_until_ready()
+
+    async def _post_auto_summary(
+        self,
+        channel_id: int,
+        interval_hours: int,
+        last_summary_at: str,
+    ) -> None:
+        """Fetch messages posted since the last run and post an AI summary.
+
+        Args:
+            channel_id (int): The channel to summarize and post to.
+            interval_hours (int): The channel's configured summary interval,
+                shown in the posted embed's footer.
+            last_summary_at (str): ISO timestamp of the previous automatic
+                summary; only messages after this point are considered
+                (capped at SUMMARY_CAP messages).
+        """
+        channel: TextChannel | None = self.bot.get_channel(channel_id)  # type: ignore[assignment]
+        if channel is None:
+            logger.debug(f"Auto-summary: channel {channel_id} not found, skipping.")
+            return
+
+        since: datetime = datetime.fromisoformat(last_summary_at)
+        messages: list = [
+            msg
+            async for msg in channel.history(
+                after=since,
+                limit=SUMMARY_CAP,
+                oldest_first=False,
+            )
+            if not msg.author.bot and (msg.clean_content.strip() or msg.embeds)
+        ]
+        if not messages:
+            logger.debug(f"Auto-summary: no new messages to summarize in {channel_id}.")
+            return
+
+        message_block: str
+        message_block, _truncated = _build_message_block(messages)
+        if not message_block.strip():
+            return
+
+        summary: str = await asyncio.to_thread(
+            get_ai_summary,
+            message_block,
+            self.bot.ai_api_key,
+        )
+        if len(summary) > DISCORD_EMBED_DESC_LIMIT:
+            summary = summary[: DISCORD_EMBED_DESC_LIMIT - 3] + "..."
+
+        embed: Embed = Embed(
+            title=f"📋 Automatic Channel Summary — {len(messages)} new message(s)",
+            color=Color.blurple(),
+            description=summary,
+        )
+        embed.set_footer(text=f"Posted automatically every {interval_hours}h.")
+        await channel.send(embed=embed)
+        logger.info(f"Posted automatic summary for channel {channel_id}.")
 
     async def _get_replied_message(self, ctx: commands.Context) -> Message | None:
         """Get the message the command invocation replied to, if any.
@@ -221,6 +320,92 @@ class AI(commands.Cog):
         )
         if footer_parts:
             embed.set_footer(text=" • ".join(footer_parts))
+
+        await ctx.send(embed=embed)
+
+    @commands.hybrid_command(
+        name="autosummary",
+        description="Enable, disable, or check automatic AI summaries for this channel.",
+    )
+    @commands.has_permissions(manage_channels=True)
+    async def autosummary(
+        self,
+        ctx: commands.Context,
+        action: str,
+        interval_hours: int = DEFAULT_AUTO_SUMMARY_INTERVAL_HOURS,
+    ) -> None:
+        """Enable, disable, or check automatic AI channel summaries.
+
+        Args:
+            ctx (commands.Context): Context.
+            action (str): One of "enable"/"on", "disable"/"off", or "status".
+            interval_hours (int): Hours between automatic summaries when
+                enabling (1-168, default 6). Ignored otherwise.
+        """
+        action = action.lower().strip()
+        channel_id: int = ctx.channel.id
+
+        if action in {"enable", "on"}:
+            clamped: int = clamp_interval_hours(interval_hours)
+            enable_auto_summary(AUTO_SUMMARY_DB_PATH, channel_id, clamped)
+            note: str = (
+                f" (clamped from {interval_hours}h; range is "
+                f"{MIN_INTERVAL_HOURS}-{MAX_INTERVAL_HOURS}h)"
+                if clamped != interval_hours
+                else ""
+            )
+            embed: Embed = Embed(
+                title="✅ Automatic Summaries Enabled",
+                color=Color.green(),
+                description=(
+                    f"I'll post an AI summary of this channel every **{clamped}h**{note}."
+                ),
+            )
+        elif action in {"disable", "off"}:
+            existed: bool = disable_auto_summary(AUTO_SUMMARY_DB_PATH, channel_id)
+            embed = Embed(
+                title="🛑 Automatic Summaries Disabled"
+                if existed
+                else "ℹ️ Already Disabled",  # noqa: RUF001
+                color=Color.og_blurple() if existed else Color.blue(),
+                description=(
+                    "Automatic summaries are now off for this channel."
+                    if existed
+                    else "Automatic summaries weren't enabled for this channel."
+                ),
+            )
+        elif action == "status":
+            config: tuple[int, str] | None = get_channel_config(
+                AUTO_SUMMARY_DB_PATH,
+                channel_id,
+            )
+            if config is None:
+                embed = Embed(
+                    title="📋 Automatic Summaries",
+                    color=Color.blue(),
+                    description="Automatic summaries are **disabled** for this channel.",
+                )
+            else:
+                config_interval, last_summary_at = config
+                last: datetime = datetime.fromisoformat(last_summary_at)
+                elapsed_hours: float = (
+                    datetime.now(timezone.utc) - last
+                ).total_seconds() / 3600
+                next_in: float = max(config_interval - elapsed_hours, 0)
+                embed = Embed(
+                    title="📋 Automatic Summaries",
+                    color=Color.green(),
+                    description=(
+                        f"**Enabled** — posting every **{config_interval}h**.\n"
+                        f"Next summary in about **{next_in:.1f}h**."
+                    ),
+                )
+        else:
+            embed = Embed(
+                title="❌ Invalid Action",
+                color=Color.red(),
+                description='Use "enable", "disable", or "status".',
+            )
 
         await ctx.send(embed=embed)
 

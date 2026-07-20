@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Added
+
+- `$autosummary <enable|disable|status> [interval_hours]` to automatically post an AI summary of a channel's new messages on a recurring schedule (1-168 hours, default 6), instead of requiring `$summarize` to be run manually. Requires "Manage Channels" permission.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed

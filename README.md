@@ -140,6 +140,8 @@ python3 main.py
 | `$count` | Increment the server count |
 | `$tictactoe <user>` | Challenge someone to Tic-Tac-Toe |
 | `$steal <user>` | Attempt to steal money from another user |
+| `$summarize [count]` | Summarize the last X messages in this channel using AI (alias: `$summary`) |
+| `$autosummary <enable\|disable\|status> [interval_hours]` | Automatically post an AI channel summary on a recurring schedule (requires Manage Channels) |
 
 ### Admin Commands
 
