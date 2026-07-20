@@ -16,6 +16,7 @@ from discord import (
     Message,
     TextChannel,
 )
+from discord.app_commands import AppCommandError
 from discord.ext import commands
 from log import logger
 from user import User, autosave
@@ -79,7 +80,7 @@ class DizznemBot(commands.Bot):
             logger.info("Syncing slash commands...")
             synced: list[AppCommand] = await self.tree.sync()
             logger.info(f"Successfully synced {len(synced)} commands.")
-        except (commands.ExtensionError, OSError) as e:
+        except (HTTPException, AppCommandError) as e:
             logger.error(f"Failed to sync commands: {e}")
 
         self.loop.create_task(autosave())

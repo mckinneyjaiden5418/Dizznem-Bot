@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Slash-command sync failures at startup (rate limits, missing permissions, invalid command data) could crash the whole bot instead of being logged and skipped -- the code was catching the wrong exception types for what actually fails there.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
