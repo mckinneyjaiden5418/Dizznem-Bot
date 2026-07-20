@@ -3,7 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Version](https://img.shields.io/badge/version-2.1.0-blue)
 
-> Last updated: v2.1.0
+> Last updated: v2.3.1
 
 A Discord bot for the Dizznem community built with discord.py. Features an economy system, stock market, YouTube playback, trivia, leaderboards, and more.
 
@@ -20,7 +20,6 @@ A Discord bot for the Dizznem community built with discord.py. Features an econo
 - **Profile & Levels** — Track messages, level up, and view your server rank
 - **Inspiration** — Daily inspirational quotes sent automatically at 8 PM EST
 - **AI Chat** — Talk to Dizznem Bot AI powered by DeepSeek
-- **Reddit** — Browse Reddit posts and user info *(coming soon)*
 - **And more** — Additional commands and features available in the bot
 
 ---
@@ -107,6 +106,8 @@ python3 main.py
 
 ## Commands
 
+### User Commands
+
 | Command | Description |
 |---|---|
 | `$help` | List all commands |
@@ -134,16 +135,24 @@ python3 main.py
 | `$leaderboard` | View server leaderboards |
 | `$level` | View your level stats |
 | `$profile` | View your full profile |
+| `$sus` | See how sus someone is |
 | `$inspiration` | Get an inspirational quote |
 | `$count` | Increment the server count |
 | `$tictactoe <user>` | Challenge someone to Tic-Tac-Toe |
+| `$steal <user>` | Attempt to steal money from another user |
+
+### Admin Commands
+
+| `$setmoney <user> <amount>` | Set a user's balance to amount |
+| `$addmoney <user> <amount>` | Add amount to user's balance |
+| `$retirestock <stock>` | Force-liquidate a stock |
+| `$resetcooldown <cooldown>` | Reset a given cooldown |
 
 ---
 
 ## Environment Notes
 
 - `DISCORD_BOT_TAG` is the word that triggers the AI chat (e.g. if set to `dizznem`, saying `dizznem what's up` in chat will get a response)
-- The Reddit cog requires a Reddit API key — see [reddit.com/prefs/apps](https://reddit.com/prefs/apps) to set one up
 - Stock prices update automatically when the US market opens each day via Yahoo Finance
 - The AI feature uses the [DeepSeek API](https://platform.deepseek.com)
 
