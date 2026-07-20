@@ -1,5 +1,11 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `$aba` / `$rogue` still occasionally showing no image (#110) -- wiki pages confirmed to have no image are now excluded from future picks entirely (previously they could still be re-picked and re-rolled into every trivia round, occasionally exhausting all re-roll attempts).
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
