@@ -1,7 +1,7 @@
 # Dizznem Bot
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Version](https://img.shields.io/badge/version-2.1.0-blue)
+![Version](https://img.shields.io/badge/version-2.3.1-blue)
 
 > Last updated: v2.3.1
 
