@@ -95,10 +95,12 @@ python/
 │   ├── bot.py            # DizznemBot class
 │   └── cogs/             # All cogs live here
 │       ├── misc/
-│       └── money/
+│       ├── money/
+│       └── moderation/
 └── utils/                # Helpers used by cogs
     ├── misc/
     ├── money/
+    ├── moderation/
     ├── general.py
     └── numbers.py
 

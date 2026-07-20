@@ -1,5 +1,15 @@
 # Dizznem Bot Changelog
 
+## [Unreleased]
+
+### Added
+
+- Warning system: `$warn`, `$warnings`, and `$delwarn`.
+    - `$warn @user <reason>` issues a persistent warning (mod command, requires Moderate Members).
+    - `$warnings [@user]` shows a user's warning history (defaults to yourself; viewing others requires Moderate Members).
+    - `$delwarn <id>` removes a specific warning by ID (mod command, requires Moderate Members).
+    - Warnings are stored per-server, so IDs and history won't cross between servers the bot is in.
+
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
