@@ -113,7 +113,11 @@ class Misc(commands.Cog):
         quote: str | None = get_random_quote(INSPIRATION_DB_PATH)
         if quote is None:
             await ctx.send(
-                "No inspirational quotes found in the database.",
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="No inspirational quotes found in the database.",
+                ),
                 ephemeral=True,
             )
             return
