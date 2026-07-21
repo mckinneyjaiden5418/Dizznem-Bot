@@ -35,14 +35,22 @@ class AmountModal(Modal, title="Enter Amount"):
             amount: int = int(self.amount.value)
         except ValueError:
             await interaction.response.send_message(
-                "Please enter a valid whole number.",
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="Please enter a valid whole number.",
+                ),
                 ephemeral=True,
             )
             return
 
         if amount <= 0:
             await interaction.response.send_message(
-                "Amount must be greater than 0.",
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="Amount must be greater than 0.",
+                ),
                 ephemeral=True,
             )
             return
