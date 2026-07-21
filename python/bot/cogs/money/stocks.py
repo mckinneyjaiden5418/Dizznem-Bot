@@ -103,14 +103,25 @@ class Stocks(commands.Cog):
         )
         if match is None:
             await ctx.send(
-                f"`{stock}` is not a valid stock. Use `/stockmarket` to see all stocks.",
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description=f"`{stock}` is not a valid stock. Use `/stockmarket` to see all stocks.",  # noqa: E501
+                ),
                 ephemeral=True,
             )
             return
 
         price: float | None = get_price(USERS_DB_PATH, match)
         if price is None:
-            await ctx.send("Could not retrieve stock price.", ephemeral=True)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="Could not retrieve stock price.",
+                ),
+                ephemeral=True,
+            )
             return
 
         balance: float = get_user_balance(ctx.author.id, ctx.author.name)
@@ -144,14 +155,25 @@ class Stocks(commands.Cog):
         )
         if match is None:
             await ctx.send(
-                f"`{stock}` is not a valid stock. Use `/stockmarket` to see all stocks.",
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description=f"`{stock}` is not a valid stock. Use `/stockmarket` to see all stocks.",  # noqa: E501
+                ),
                 ephemeral=True,
             )
             return
 
         price: float | None = get_price(USERS_DB_PATH, match)
         if price is None:
-            await ctx.send("Could not retrieve stock price.", ephemeral=True)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="Could not retrieve stock price.",
+                ),
+                ephemeral=True,
+            )
             return
 
         holdings: list[tuple[str, int, float]] = get_user_stocks(
@@ -160,7 +182,14 @@ class Stocks(commands.Cog):
         )
         owned: int = next((qty for name, qty, _ in holdings if name == match), 0)
         if owned == 0:
-            await ctx.send(f"You don't own any **{match}** shares.", ephemeral=True)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description=f"You don't own any **{match}** shares.",
+                ),
+                ephemeral=True,
+            )
             return
 
         view: SellView = SellView(
