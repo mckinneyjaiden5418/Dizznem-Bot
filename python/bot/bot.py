@@ -182,7 +182,7 @@ class DizznemBot(commands.Bot):
                     f"(no channel or DM permission)",
                 )
         except HTTPException as e:
-            logger.error(f"Failed to send level up message: {e}")
+            logger.error(f"Failed to send level up message to {message.author}: {e}")
 
     async def _handle_triggers(self, message: Message) -> None:
         """Check message content against triggers and respond accordingly.

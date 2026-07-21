@@ -15,7 +15,7 @@ SAVE_INTERVAL: int = 60
 
 
 def init_db() -> None:
-    """Initalize database if not done so already."""
+    """Initialize database if not done so already."""
     logger.info("Initiating database...")
 
     DB_PATH.parent.mkdir(exist_ok=True)
@@ -33,7 +33,7 @@ def init_db() -> None:
         """,
         )
 
-    logger.info("Database initalized.")
+    logger.info("Database initialized.")
 
 
 class User:
