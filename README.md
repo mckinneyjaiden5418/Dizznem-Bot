@@ -141,6 +141,14 @@ python3 main.py
 | `$tictactoe <user>` | Challenge someone to Tic-Tac-Toe |
 | `$steal <user>` | Attempt to steal money from another user |
 
+### Moderator Commands
+
+| Command | Description |
+|---|---|
+| `$warn <user> <reason>` | Issue a persistent warning to a user (requires Moderate Members) |
+| `$warnings [user]` | View a user's warning history (defaults to yourself) |
+| `$delwarn <id>` | Remove a specific warning by ID (requires Moderate Members) |
+
 ### Admin Commands
 
 | `$setmoney <user> <amount>` | Set a user's balance to amount |

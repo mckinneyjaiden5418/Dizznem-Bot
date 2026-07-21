@@ -1,0 +1,1 @@
+"""Init for moderation cogs."""
