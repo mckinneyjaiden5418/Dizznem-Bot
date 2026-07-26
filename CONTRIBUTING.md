@@ -8,6 +8,7 @@ Thanks for your interest in contributing! Please read through this guide before 
 - [Environment Variables](#environment-variables)
 - [Project Structure](#project-structure)
 - [Running Tests](#running-tests)
+- [Linting](#linting)
 - [Adding a Cog](#adding-a-cog)
 - [Code Guidelines](#code-guidelines)
 - [Pull Request Process](#pull-request-process)
@@ -119,6 +120,18 @@ pytest -v
 - `pytest.ini` sets `asyncio_mode=auto`
 
 **Please make sure all tests pass before opening a PR.** The PR template includes a checklist item for this. CI will also run pytest automatically on every push and pull request.
+
+---
+
+## Linting
+
+This project uses [Ruff](https://docs.astral.sh/ruff/) for linting, configured in `ruff.toml`.
+
+```bash
+ruff check .
+```
+
+CI runs `ruff check .` automatically on every push and pull request — a PR with lint errors will not pass CI.
 
 ---
 
