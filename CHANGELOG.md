@@ -1,11 +1,5 @@
 # Dizznem Bot Changelog
 
-## [Unreleased]
-
-### Added
-
-- CI now runs `ruff check .` on every push and pull request to catch lint errors automatically (`ruff.toml` configures the rule set).
-
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
