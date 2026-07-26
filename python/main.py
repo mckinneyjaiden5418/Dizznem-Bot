@@ -41,6 +41,6 @@ def main() -> None:
         logger.error(f"Dizznem Bot failed to start: {e}")
         raise
 
-
+ 
 if __name__ == "__main__":
     main()
