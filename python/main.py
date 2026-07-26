@@ -2,6 +2,7 @@
 
 import os
 
+import json
 from bot.bot import DizznemBot
 from dotenv import load_dotenv
 from log import logger
@@ -41,6 +42,6 @@ def main() -> None:
         logger.error(f"Dizznem Bot failed to start: {e}")
         raise
 
- 
+
 if __name__ == "__main__":
     main()
