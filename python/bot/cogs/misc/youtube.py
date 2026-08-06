@@ -112,9 +112,9 @@ class YouTube(commands.Cog):
                         return info  # pyright: ignore[reportReturnType]
                     if info and "entries" in info and info["entries"]:
                         logger.debug(
-                            f"[yt] search returned {len(info['entries'])} entries, using first",
+                            f"[yt] search returned {len(info['entries'])} entries, using first", # pyright: ignore[reportArgumentType]
                         )
-                        return info["entries"][0]
+                        return info["entries"][0] # pyright: ignore[reportIndexIssue]
                     logger.debug("[yt] search returned no entries")
                     return None  # noqa: TRY300
                 except (
@@ -128,7 +128,7 @@ class YouTube(commands.Cog):
                 asyncio.to_thread(_extract),
                 timeout=FETCH_TIMEOUT_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             elapsed = time.monotonic() - t_start
             logger.error(
                 f"[yt] _fetch_info TIMED OUT after {elapsed:.2f}s | query={query!r}",
@@ -146,7 +146,7 @@ class YouTube(commands.Cog):
             )
         return result
 
-    def _play_next(self, ctx: commands.Context) -> None:
+    def _play_next(self, ctx: commands.Context) -> None:  # noqa: C901, PLR0915
         """Play the next song in the queue."""
         logger.debug(
             f"[yt] _play_next called | queue_size={len(self.queue)} | voice_client={self.voice_client is not None}",  # noqa: E501
