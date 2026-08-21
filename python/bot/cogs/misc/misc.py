@@ -2,7 +2,7 @@
 
 import asyncio
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from bot.bot import DizznemBot
@@ -69,7 +69,7 @@ class Misc(commands.Cog):
         """Wait until bot is ready, then sleep until 7 PM EST."""
         await self.bot.wait_until_ready()
 
-        now: datetime = datetime.now(timezone.utc)
+        now: datetime = datetime.now(UTC)
         target: datetime = now.replace(
             hour=DAILY_INSPIRATION_HOUR_UTC,
             minute=DAILY_INSPIRATION_MINUTE_UTC,
