@@ -4,7 +4,10 @@
 
 ### Fixed
 
-- `$aba` / `$rogue` still occasionally showing no image (#110) -- wiki pages confirmed to have no image are now excluded from future picks entirely (previously they could still be re-picked and re-rolled into every trivia round, occasionally exhausting all re-roll attempts).
+- `$aba` / `$rogue` still occasionally showing no image -- wiki pages confirmed to have no image are now excluded from future picks entirely (previously they could still be re-picked and re-rolled into every trivia round, occasionally exhausting all re-roll attempts).
+- `$play` no longer leaves a dead/failed interaction if the bot can't join or move to your voice channel (missing permission, timeout) -- now sends a clear error instead.
+- Playback failures (e.g. yt-dlp or ffmpeg failing to start) no longer leave the bot silently "stuck" on a song with no audio -- the failed track is now skipped with an error message and the queue continues.
+- Unexpected command errors no longer fail silently -- you now get a "Something Went Wrong" message instead of a dead/failed interaction with no feedback.
 
 ## [2.3.1] - 2026-7-19
 

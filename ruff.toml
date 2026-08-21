@@ -1,0 +1,5 @@
+target-version = "py312"
+
+[lint]
+# Default rule set (E4, E7, E9, F) plus isort-style import sorting (I).
+extend-select = ["I"]
