@@ -1,6 +1,5 @@
 """Tests for general utility helpers."""
 
-import asyncio
 from types import SimpleNamespace
 
 from utils.general import get_user_answer, reset_cd
@@ -17,7 +16,7 @@ class TestResetCooldown:
         """The active command receives the context to reset."""
         calls: list[object] = []
         command: SimpleNamespace = SimpleNamespace(
-            reset_cooldown=lambda ctx: calls.append(ctx),
+            reset_cooldown=calls.append,
         )
         ctx: SimpleNamespace = SimpleNamespace(command=command)
 
@@ -41,10 +40,10 @@ class TestGetUserAnswer:
         )
 
         class Bot:
-            async def wait_for(self, _event: str, check: object, timeout: int) -> object:
-                assert timeout == 15
-                assert check(reply) is True
-                assert check(SimpleNamespace(author=object(), channel=channel)) is False
+            async def wait_for(self, _event: str, check: object, timeout: int) -> object:  # noqa: ASYNC109
+                assert timeout == 15  # noqa: PLR2004
+                assert check(reply) is True # pyright: ignore[reportCallIssue]
+                assert check(SimpleNamespace(author=object(), channel=channel)) is False # pyright: ignore[reportCallIssue]
                 return reply
 
         assert await get_user_answer(Bot(), ctx) == "Dizzle answer"
@@ -55,6 +54,6 @@ class TestGetUserAnswer:
 
         class Bot:
             async def wait_for(self, *_args: object, **_kwargs: object) -> object:
-                raise asyncio.TimeoutError
+                raise TimeoutError
 
         assert await get_user_answer(Bot(), ctx, timeout=1) is None
