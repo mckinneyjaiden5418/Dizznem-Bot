@@ -98,7 +98,7 @@ class Misc(commands.Cog):
         embed: Embed = Embed(
             title="📖 Commands",
             color=Color.og_blurple(),
-            description="Here's everything I can do, organized by category.",
+            description="All Dizznem Bot commands.",
         )
         for category in CATEGORY_ORDER:
             lines: list[str] | None = categories.get(category)
