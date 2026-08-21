@@ -4,6 +4,7 @@
 
 ### Changed
 
+- `$gamble` error messages are more helpful: an invalid amount now shows example formats (`500`, `1,000`, `$250`, `all`, `half`), and trying to gamble more than you have now shows your actual balance instead of just saying "not enough money."
 - `$help` now groups commands into categories (💰 Economy, 🎵 Music, 🎮 Games, 👤 Profile, 🤖 AI, ℹ️ Misc) instead of one flat alphabetical list, and admin-only commands are hidden unless you're the bot admin.
 
 ### Fixed
