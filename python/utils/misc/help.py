@@ -10,7 +10,7 @@ CATEGORY_MAP: dict[str, str] = {
     "Games": "🎮 Games",
     "UserInfo": "👤 Profile",
     "AI": "🤖 AI",
-    "Misc": "ℹ️ Misc",
+    "Misc": "ℹ️ Misc",  # noqa: RUF001
     "Admin": "🛠️ Admin",
 }
 
@@ -20,7 +20,7 @@ CATEGORY_ORDER: list[str] = [
     "🎮 Games",
     "👤 Profile",
     "🤖 AI",
-    "ℹ️ Misc",
+    "ℹ️ Misc",  # noqa: RUF001
     "🛠️ Admin",
 ]
 
@@ -30,7 +30,7 @@ MAX_FIELD_LENGTH: int = 1000
 
 def build_help_categories(
     bot: commands.Bot,
-    is_admin: bool,
+    is_admin: bool,  # noqa: FBT001
 ) -> dict[str, list[str]]:
     """Group bot commands into display categories.
 
@@ -44,7 +44,7 @@ def build_help_categories(
     categories: dict[str, list[str]] = {}
     for cmd in sorted(bot.commands, key=lambda c: c.name):
         cog_name: str = cmd.cog_name or "Misc"
-        category: str = CATEGORY_MAP.get(cog_name, "ℹ️ Misc")
+        category: str = CATEGORY_MAP.get(cog_name, "ℹ️ Misc")  # noqa: RUF001
         if category == ADMIN_CATEGORY and not is_admin:
             continue
 
