@@ -10,7 +10,7 @@ from discord import Color, Embed, Member, TextChannel, User
 from discord.ext import commands, tasks
 from log import logger
 from utils.misc.count import ensure_count_db, increment_count
-from utils.misc.help import get_help_text
+from utils.misc.help import CATEGORY_ORDER, build_help_categories, chunk_lines
 from utils.misc.inspiration import ensure_inspiration_db, get_random_quote
 
 INSPIRATION_DB_PATH: Path = Path("data/inspiration.db")
@@ -92,12 +92,22 @@ class Misc(commands.Cog):
         Args:
             ctx (commands.Context): Context.
         """
-        help_text: str = get_help_text(ctx.bot)
+        is_admin: bool = ctx.author.id == self.bot.admin_id
+        categories: dict[str, list[str]] = build_help_categories(ctx.bot, is_admin)
+
         embed: Embed = Embed(
-            title="Commands",
+            title="📖 Commands",
             color=Color.og_blurple(),
-            description=help_text,
+            description="All Dizznem Bot commands.",
         )
+        for category in CATEGORY_ORDER:
+            lines: list[str] | None = categories.get(category)
+            if not lines:
+                continue
+            for i, chunk in enumerate(chunk_lines(lines)):
+                field_name: str = category if i == 0 else f"{category} (cont.)"
+                embed.add_field(name=field_name, value=chunk, inline=False)
+
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(

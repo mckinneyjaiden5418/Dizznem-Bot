@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- `$help` now groups commands into categories (💰 Economy, 🎵 Music, 🎮 Games, 👤 Profile, 🤖 AI, ℹ️ Misc) instead of one flat alphabetical list, and admin-only commands are hidden unless you're the bot admin.
+
 ### Fixed
 
 - `$aba` / `$rogue` still occasionally showing no image -- wiki pages confirmed to have no image are now excluded from future picks entirely (previously they could still be re-picked and re-rolled into every trivia round, occasionally exhausting all re-roll attempts).
