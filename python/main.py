@@ -1,11 +1,14 @@
 """Main."""
 
 import os
+import signal
+import sys
+from types import FrameType
 
 from bot.bot import DizznemBot
 from dotenv import load_dotenv
 from log import logger
-from user import init_db
+from user import init_db, save_all_users
 
 load_dotenv()
 
@@ -26,6 +29,18 @@ def validate_env() -> bool:
     return not missing_vars
 
 
+def handle_sigterm(signum: int, frame: FrameType | None) -> None:  # noqa: ARG001
+    """Flush unsaved user data to disk before the process is terminated.
+
+    Args:
+        signum (int): The signal number received.
+        frame (FrameType | None): The current stack frame.
+    """
+    logger.info("Received SIGTERM, saving all users before exit...")
+    save_all_users()
+    sys.exit(0)
+
+
 def main() -> None:
     """Start bot."""
     logger.info("Starting Dizznem Bot...")
@@ -33,6 +48,7 @@ def main() -> None:
         return
 
     init_db()
+    signal.signal(signal.SIGTERM, handle_sigterm)
 
     try:
         bot: DizznemBot = DizznemBot()
