@@ -169,10 +169,6 @@ class StoreView(View):
     def _check_balance(self, cost: float) -> bool:
         """Check if the user can currently afford an item.
 
-        Re-reads the live balance rather than relying on the balance the
-        view was created with, since that snapshot can go stale (e.g. the
-        user spends money elsewhere) while this view is still open.
-
         Args:
             cost (float): Item cost.
 
