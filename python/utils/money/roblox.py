@@ -48,6 +48,7 @@ class CharacterEntry(TypedDict):
 
     name: str
     image_url: str | None
+    confirmed_no_image: bool
 
 
 class GameCache(TypedDict):
@@ -187,7 +188,7 @@ def build_entries(wiki_base: str, category: str) -> list[CharacterEntry]:
     """
     titles: list[str] = fetch_category_members(wiki_base, category)
     return [
-        CharacterEntry(name=t, image_url=None)
+        CharacterEntry(name=t, image_url=None, confirmed_no_image=False)
         for t in titles
         if t not in _CATEGORY_PAGE_FILTER
     ]
@@ -228,7 +229,8 @@ def resolve_image_blocking(wiki_base: str, entry: CharacterEntry) -> str | None:
     """Fetch and cache the image URL for a single entry if not already set.
 
     Mutates entry["image_url"] in place so the same character skips the
-    API call on subsequent picks.
+    API call on subsequent picks. Pages confirmed to have no image are
+    flagged via confirmed_no_image so they're not re-fetched every pick.
 
     Args:
         wiki_base (str): Base URL of the wiki.
@@ -237,8 +239,10 @@ def resolve_image_blocking(wiki_base: str, entry: CharacterEntry) -> str | None:
     Returns:
         str | None: The image URL, or None if none found.
     """
-    if entry["image_url"] is None:
+    if entry["image_url"] is None and not entry["confirmed_no_image"]:
         entry["image_url"] = fetch_image_url(wiki_base, entry["name"])
+        if entry["image_url"] is None:
+            entry["confirmed_no_image"] = True
     return entry["image_url"]
 
 
@@ -289,15 +293,24 @@ async def question(game: str) -> tuple[str | None, str, str]:
         msg: str = f"No entries found for category {category_key!r}"
         raise RuntimeError(msg)
 
-    entry: CharacterEntry = random.choice(entries)  # noqa: S311
+    def pickable_pool() -> list[CharacterEntry]:
+        """Entries not yet confirmed imageless, falling back to all entries."""
+        pool: list[CharacterEntry] = [
+            e for e in entries if not e["confirmed_no_image"]
+        ]
+        return pool or entries
+
+    entry: CharacterEntry = random.choice(pickable_pool())  # noqa: S311
     image_url: str | None = await resolve_image(wiki_base, entry)
 
     # Some wiki pages have no lead image, making the question unanswerable.
     # Re-roll a bounded number of times before falling back to an imageless one.
+    # Entries confirmed imageless are excluded from the pool as they're found,
+    # so they won't be picked again for the life of this cache entry.
     for _ in range(MAX_IMAGE_ATTEMPTS - 1):
         if image_url is not None:
             break
-        entry = random.choice(entries)  # noqa: S311
+        entry = random.choice(pickable_pool())  # noqa: S311
         image_url = await resolve_image(wiki_base, entry)
 
     return image_url, trivia_question, entry["name"]
