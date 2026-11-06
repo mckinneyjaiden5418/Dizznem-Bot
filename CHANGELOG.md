@@ -2,9 +2,18 @@
 
 ## [Unreleased]
 
+### Changed
+
+- `$gamble` error messages are more helpful: an invalid amount now shows example formats (`500`, `1,000`, `$250`, `all`, `half`), and trying to gamble more than you have now shows your actual balance instead of just saying "not enough money."
+- `$help` now groups commands into categories (💰 Economy, 🎵 Music, 🎮 Games, 👤 Profile, 🤖 AI, ℹ️ Misc) instead of one flat alphabetical list, and admin-only commands are hidden unless you're the bot admin.
+
 ### Fixed
 
-- `/networth` and `$networth` required you to tag a member even to check your own net worth -- now works with no argument, matching `/balance`.
+- `$aba` / `$rogue` still occasionally showing no image -- wiki pages confirmed to have no image are now excluded from future picks entirely (previously they could still be re-picked and re-rolled into every trivia round, occasionally exhausting all re-roll attempts).
+- `$play` no longer leaves a dead/failed interaction if the bot can't join or move to your voice channel (missing permission, timeout) -- now sends a clear error instead.
+- Playback failures (e.g. yt-dlp or ffmpeg failing to start) no longer leave the bot silently "stuck" on a song with no audio -- the failed track is now skipped with an error message and the queue continues.
+- Unexpected command errors no longer fail silently -- you now get a "Something Went Wrong" message instead of a dead/failed interaction with no feedback.
+- Niche `$networth` bug.
 
 ## [2.3.1] - 2026-7-19
 

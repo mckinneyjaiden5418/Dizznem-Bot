@@ -22,17 +22,26 @@ from utils.money.roblox import (
 )
 
 
-def make_entry(name: str, image_url: str | None = None) -> CharacterEntry:
+def make_entry(
+    name: str,
+    image_url: str | None = None,
+    confirmed_no_image: bool = False,
+) -> CharacterEntry:
     """Create a CharacterEntry for testing.
 
     Args:
         name (str): Character name.
         image_url (str | None): Optional image URL.
+        confirmed_no_image (bool): Whether the entry is confirmed imageless.
 
     Returns:
         CharacterEntry: Test entry.
     """
-    return CharacterEntry(name=name, image_url=image_url)
+    return CharacterEntry(
+        name=name,
+        image_url=image_url,
+        confirmed_no_image=confirmed_no_image,
+    )
 
 
 def inject_cache(game: str, data: dict, age: timedelta = timedelta(hours=0)) -> None:
@@ -391,6 +400,33 @@ class TestResolveImageBlocking:
         assert result is None
         assert entry["image_url"] is None
 
+    def test_marks_confirmed_no_image_on_miss(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that a page with no thumbnail is flagged as confirmed_no_image."""
+        entry: CharacterEntry = make_entry("Unnamed")
+        monkeypatch.setattr(roblox_util, "fetch_image_url", lambda *_a: None)
+        resolve_image_blocking("https://example.fandom.com", entry)
+        assert entry["confirmed_no_image"] is True
+
+    def test_skips_fetch_when_confirmed_no_image(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that a confirmed-imageless entry is never re-fetched."""
+        entry: CharacterEntry = make_entry("Unnamed", confirmed_no_image=True)
+        called: bool = False
+
+        def should_not_be_called(*_a: object) -> None:
+            nonlocal called
+            called = True
+
+        monkeypatch.setattr(roblox_util, "fetch_image_url", should_not_be_called)
+        result: str | None = resolve_image_blocking("https://example.fandom.com", entry)
+        assert result is None
+        assert not called
+
 
 class TestPopulateCacheBlocking:
     """Tests for populate_cache_blocking."""
@@ -592,6 +628,74 @@ class TestQuestion:
         image_url, _trivia_question, answer = await question("aba")
         assert answer == "Good"
         assert image_url == "https://img.example.com/good.png"
+
+    async def test_confirmed_no_image_entries_excluded_from_pool(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that already-confirmed-imageless entries are never picked."""
+        bad: CharacterEntry = make_entry("Bad", confirmed_no_image=True)
+        good: CharacterEntry = make_entry(
+            "Good",
+            "https://img.example.com/good.png",
+        )
+        inject_cache("aba", {"character": [bad, good]})
+
+        pools_seen: list[list[str]] = []
+
+        def fake_choice(seq: list) -> CharacterEntry:
+            pools_seen.append([e["name"] for e in seq])
+            return seq[0]
+
+        async def fake_ensure(game: str) -> None:
+            pass
+
+        async def fake_resolve(_wiki: str, entry: CharacterEntry) -> str | None:
+            return entry["image_url"]
+
+        monkeypatch.setattr(roblox_util.random, "choice", fake_choice)
+        monkeypatch.setattr(roblox_util, "ensure_cache", fake_ensure)
+        monkeypatch.setattr(roblox_util, "resolve_image", fake_resolve)
+
+        await question("aba")
+
+        assert all("Bad" not in pool for pool in pools_seen)
+
+    async def test_pool_excludes_freshly_confirmed_entry_on_reroll(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Test that an entry confirmed imageless mid-call is excluded on reroll."""
+        bad: CharacterEntry = make_entry("Bad")
+        good: CharacterEntry = make_entry(
+            "Good",
+            "https://img.example.com/good.png",
+        )
+        inject_cache("aba", {"character": [bad, good]})
+
+        pools_seen: list[list[str]] = []
+        picks: list[CharacterEntry] = [bad, good]
+
+        def fake_choice(seq: list) -> CharacterEntry:
+            pools_seen.append([e["name"] for e in seq])
+            return picks.pop(0)
+
+        async def fake_ensure(game: str) -> None:
+            pass
+
+        async def fake_resolve(_wiki: str, entry: CharacterEntry) -> str | None:
+            if entry["image_url"] is None:
+                entry["confirmed_no_image"] = True
+            return entry["image_url"]
+
+        monkeypatch.setattr(roblox_util.random, "choice", fake_choice)
+        monkeypatch.setattr(roblox_util, "ensure_cache", fake_ensure)
+        monkeypatch.setattr(roblox_util, "resolve_image", fake_resolve)
+
+        await question("aba")
+
+        assert pools_seen[0] == ["Bad", "Good"]
+        assert pools_seen[1] == ["Good"]
 
     async def test_retries_are_bounded(
         self,

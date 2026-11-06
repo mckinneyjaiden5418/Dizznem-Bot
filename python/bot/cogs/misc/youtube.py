@@ -9,9 +9,11 @@ from typing import TYPE_CHECKING
 import yt_dlp
 from bot.bot import DizznemBot
 from discord import (
+    ClientException,
     Color,
     Embed,
     FFmpegPCMAudio,
+    Forbidden,
     Member,
     PCMVolumeTransformer,
     StageChannel,
@@ -110,9 +112,9 @@ class YouTube(commands.Cog):
                         return info  # pyright: ignore[reportReturnType]
                     if info and "entries" in info and info["entries"]:
                         logger.debug(
-                            f"[yt] search returned {len(info['entries'])} entries, using first",
+                            f"[yt] search returned {len(info['entries'])} entries, using first", # pyright: ignore[reportArgumentType]
                         )
-                        return info["entries"][0]
+                        return info["entries"][0] # pyright: ignore[reportIndexIssue]
                     logger.debug("[yt] search returned no entries")
                     return None  # noqa: TRY300
                 except (
@@ -126,7 +128,7 @@ class YouTube(commands.Cog):
                 asyncio.to_thread(_extract),
                 timeout=FETCH_TIMEOUT_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             elapsed = time.monotonic() - t_start
             logger.error(
                 f"[yt] _fetch_info TIMED OUT after {elapsed:.2f}s | query={query!r}",
@@ -144,7 +146,7 @@ class YouTube(commands.Cog):
             )
         return result
 
-    def _play_next(self, ctx: commands.Context) -> None:
+    def _play_next(self, ctx: commands.Context) -> None:  # noqa: C901, PLR0915
         """Play the next song in the queue."""
         logger.debug(
             f"[yt] _play_next called | queue_size={len(self.queue)} | voice_client={self.voice_client is not None}",  # noqa: E501
@@ -215,23 +217,18 @@ class YouTube(commands.Cog):
                     f"[yt] _start_playing: failed to start yt-dlp process: {e}",
                 )
                 self.current = None
+                await ctx.send(
+                    embed=Embed(
+                        title="⚠️ Playback Failed",
+                        color=Color.red(),
+                        description=f"Couldn't start playback for **{title}**, skipping.",
+                    ),
+                )
+                self._play_next(ctx)
                 return
 
             logger.debug(
                 f"[yt] _start_playing: yt-dlp process started | pid={proc.pid}",
-            )
-
-            source: PCMVolumeTransformer[FFmpegPCMAudio] = PCMVolumeTransformer(
-                FFmpegPCMAudio(
-                    proc.stdout,  # pyright: ignore[reportArgumentType]
-                    pipe=True,
-                    **FFMPEG_OPTIONS,
-                ),
-                volume=0.5,
-            )
-
-            logger.debug(
-                "[yt] _start_playing: FFmpegPCMAudio source created successfully",
             )
 
             def after_playing(error: Exception | None) -> None:
@@ -245,9 +242,33 @@ class YouTube(commands.Cog):
                     self.bot.loop,
                 )
 
-            logger.debug(f"[yt] calling voice_client.play() for {title!r}")
-            self.voice_client.play(source, after=after_playing)
-            logger.debug(f"[yt] voice_client.play() returned for {title!r}")
+            try:
+                source: PCMVolumeTransformer[FFmpegPCMAudio] = PCMVolumeTransformer(
+                    FFmpegPCMAudio(
+                        proc.stdout,  # pyright: ignore[reportArgumentType]
+                        pipe=True,
+                        **FFMPEG_OPTIONS,
+                    ),
+                    volume=0.5,
+                )
+                logger.debug(
+                    "[yt] _start_playing: FFmpegPCMAudio source created successfully",
+                )
+                logger.debug(f"[yt] calling voice_client.play() for {title!r}")
+                self.voice_client.play(source, after=after_playing)
+                logger.debug(f"[yt] voice_client.play() returned for {title!r}")
+            except Exception as e:  # noqa: BLE001
+                logger.error(f"[yt] _start_playing: failed to start playback: {e}")
+                self._kill_ytdlp()
+                self.current = None
+                await ctx.send(
+                    embed=Embed(
+                        title="⚠️ Playback Failed",
+                        color=Color.red(),
+                        description=f"Couldn't play **{title}**, skipping.",
+                    ),
+                )
+                self._play_next(ctx)
 
         asyncio.run_coroutine_threadsafe(_start_playing(), self.bot.loop)
         logger.debug(
@@ -367,17 +388,29 @@ class YouTube(commands.Cog):
             f"[yt] play: voice_channel={getattr(voice_channel, 'name', None)!r}",
         )
 
-        if self.voice_client is None or not self.voice_client.is_connected():
-            logger.debug("[yt] play: connecting to voice channel")
-            self.voice_client = (
-                await voice_channel.connect()  # pyright: ignore[reportOptionalMemberAccess]
+        try:
+            if self.voice_client is None or not self.voice_client.is_connected():
+                logger.debug("[yt] play: connecting to voice channel")
+                self.voice_client = (
+                    await voice_channel.connect()  # pyright: ignore[reportOptionalMemberAccess]
+                )
+                logger.debug("[yt] play: connected to voice channel")
+            elif self.voice_client.channel != voice_channel:
+                logger.debug(
+                    f"[yt] play: moving from {self.voice_client.channel!r} to {voice_channel!r}",
+                )
+                await self.voice_client.move_to(voice_channel)
+        except (TimeoutError, ClientException, Forbidden) as e:
+            logger.error(f"[yt] play: failed to join voice channel: {e}")
+            await ctx.send(
+                embed=Embed(
+                    title="❌ Couldn't Join Voice Channel",
+                    color=Color.red(),
+                    description="I couldn't connect to your voice channel. Check my "
+                    "voice permissions and try again.",
+                ),
             )
-            logger.debug("[yt] play: connected to voice channel")
-        elif self.voice_client.channel != voice_channel:
-            logger.debug(
-                f"[yt] play: moving from {self.voice_client.channel!r} to {voice_channel!r}",
-            )
-            await self.voice_client.move_to(voice_channel)
+            return
 
         self.queue.append(info)
         logger.debug(f"[yt] play: appended to queue | queue_size={len(self.queue)}")
