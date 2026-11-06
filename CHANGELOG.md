@@ -14,6 +14,7 @@
 - Playback failures (e.g. yt-dlp or ffmpeg failing to start) no longer leave the bot silently "stuck" on a song with no audio -- the failed track is now skipped with an error message and the queue continues.
 - Unexpected command errors no longer fail silently -- you now get a "Something Went Wrong" message instead of a dead/failed interaction with no feedback.
 - Niche `$networth` bug.
+- `$store` purchases and prestige could go through (and prestige could grant its reward) using a stale balance check from when the store menu was opened, instead of your current balance -- if your balance dropped while the menu was still open (e.g. from gambling), a purchase could push your balance negative, or prestige could still succeed at less than the true cost. Both now re-check your live balance right before spending it.
 
 ## [2.3.1] - 2026-7-19
 
