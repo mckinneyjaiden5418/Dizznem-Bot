@@ -1,6 +1,6 @@
 # Dizznem Bot Changelog
 
-## [Unreleased]
+## [2.3.2] - 2026-11-6
 
 ### Changed
 
