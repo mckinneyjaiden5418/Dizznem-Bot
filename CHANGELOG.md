@@ -1,7 +1,5 @@
 # Dizznem Bot Changelog
 
-
-
 ## [2.3.1] - 2026-7-19
 
 ### Fixed
