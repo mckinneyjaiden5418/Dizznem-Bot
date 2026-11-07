@@ -24,7 +24,8 @@
     "ANN401",
     "N806",
     "ASYNC240",
-    "S101"
+    "S101",
+    "CPY001"
   ],
   "ruff.lineLength": 100,
   "[python]": {

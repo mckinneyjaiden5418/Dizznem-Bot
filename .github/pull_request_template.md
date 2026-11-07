@@ -10,4 +10,5 @@ Fixes #
 - [ ] No breaking changes to existing commands (or noted below if so)
 - [ ] Tested in Discord manually
 - [ ] `pytest` passes with no errors
+- [ ] `ruff check .` passes with no errors
 - [ ] `CHANGELOG.md` updated (if applicable)
