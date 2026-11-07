@@ -4,7 +4,7 @@
 
 ### Changed
 
-- A handful of error messages (`$tictactoe`, `$buystock`/`$sellstock`, `$inspiration`) now use the same embed format as every other error reply in the bot, instead of plain text.
+- A handful of error messages (`$buystock`/`$sellstock`, `$inspiration`, and more) now use the same embed format as every other error reply in the bot, instead of plain text.
 
 ## [2.3.1] - 2026-7-19
 
