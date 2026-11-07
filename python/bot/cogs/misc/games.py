@@ -1,7 +1,7 @@
 """Interactive Dizzle game commands."""
 
 from bot.bot import DizznemBot
-from discord import ButtonStyle, Interaction, Member, Message
+from discord import ButtonStyle, Color, Embed, Interaction, Member, Message
 from discord.ext import commands
 from discord.ui import Button, View
 from utils.misc.tictactoe import get_winner, is_draw
@@ -147,10 +147,24 @@ class Games(commands.Cog):
             opponent: The member challenged to play O.
         """
         if opponent.id == ctx.author.id:
-            await ctx.send("You cannot challenge yourself.", ephemeral=True)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="You cannot challenge yourself.",
+                ),
+                ephemeral=True,
+            )
             return
         if opponent.bot:
-            await ctx.send("Bots do not play Tic-Tac-Toe. They have scripts to write.", ephemeral=True)
+            await ctx.send(
+                embed=Embed(
+                    title="Error",
+                    color=Color.red(),
+                    description="Bots do not play Tic-Tac-Toe. They have scripts to write.",
+                ),
+                ephemeral=True,
+            )
             return
 
         player_x: Member = ctx.author  # type: ignore[assignment]

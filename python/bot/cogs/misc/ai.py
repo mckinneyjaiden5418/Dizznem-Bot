@@ -99,6 +99,10 @@ class AI(commands.Cog):
         try:
             return await ctx.channel.fetch_message(reference.message_id)
         except HTTPException:
+            logger.debug(
+                f"Failed to fetch replied-to message {reference.message_id} "
+                f"in channel {ctx.channel.id}; falling back to channel history.",
+            )
             return None
 
     @commands.hybrid_command(
