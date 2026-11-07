@@ -87,11 +87,7 @@ class DizznemBot(commands.Bot):
         logger.info("Autosave task started.")
 
     async def on_ready(self) -> None:
-        """Bot startup.
-
-        Note: on_ready can fire more than once (e.g. on gateway reconnects),
-        so the startup message is only sent the first time.
-        """
+        """Bot startup."""
         if self._sent_ready_message:
             logger.info("Bot reconnected.")
             return
