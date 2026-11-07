@@ -1,6 +1,6 @@
 # Dizznem Bot Changelog
 
-## [2.3.2] - 2026-11-6
+## [2.3.2] - 2026-11-06
 
 ### Changed
 
@@ -18,13 +18,13 @@
 - `$store` purchases and prestige could go through (and prestige could grant its reward) using a stale balance check from when the store menu was opened, instead of your current balance -- if your balance dropped while the menu was still open (e.g. from gambling), a purchase could push your balance negative, or prestige could still succeed at less than the true cost. Both now re-check your live balance right before spending it.
 - Rare chance of losing data up to 60 seconds.
 
-## [2.3.1] - 2026-7-19
+## [2.3.1] - 2026-07-19
 
 ### Fixed
 
 - Being able to use `$steal` with negative balance -- you must have at least $1,000 now.
 
-## [2.3.0] - 2026-7-19
+## [2.3.0] - 2026-07-19
 
 ### Added
 
@@ -51,13 +51,13 @@
 
 - Collaborated with @obroald-collab for many of these changes!
 
-## [2.2.1] - 2026-7-1
+## [2.2.1] - 2026-07-01
 
 ### Removed
 
 - Pride month exclusive response commands.
 
-## [2.2.0] - 2026-6-1
+## [2.2.0] - 2026-06-01
 
 ### Added
 
@@ -83,7 +83,7 @@
 - $setmoney formatting (admin command).
 - Prestige price not scaling.
 
-## [2.1.1] - 2026-5-12
+## [2.1.1] - 2026-05-12
 
 ### Added
 
@@ -92,7 +92,7 @@
     - In other words only 3 AI calls can be made at once, the rest waits in a queue.
 - Prompt length cap of 1000 characters for AI chat.
 
-## [2.1.0] - 2026-5-8
+## [2.1.0] - 2026-05-08
 
 ### Added
 
@@ -118,7 +118,7 @@
 - YouTube feature should work WAYYYYYY better now (i.e. not slow... I hope).
     - (It speeds up randomly because it has "Made in Heaven" might patch this in the future idk).
 
-## [2.0.1] - 2026-4-7
+## [2.0.1] - 2026-04-07
 
 ### Changed
 
@@ -131,7 +131,7 @@
 - YouTube command being slow/buggy (probably not but I might have! it's hard to test because the raspberry pi seems like the main reason it was doing this).
 
 
-## [2.0.0] - 2026-3-29
+## [2.0.0] - 2026-03-29
 
 ### Added
 
@@ -192,7 +192,7 @@
 - YouTube feature will get more refined in a future update (such as vote skipping), I just wanted to get the feature out for 2.0.0.
 - YouTube feature probably has a bug where it'll stop playing something randomly, but I wanted to get this out today so I'll fix this later haha.
 
-## [1.0.0] - 2025-3-30
+## [1.0.0] - 2025-03-30
 
 ### Added
 
